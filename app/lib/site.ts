@@ -4,9 +4,8 @@
 export const SITE = {
   name: 'Terribelle',
   legalName: 'Terribelle Couture',
-  email: 'terribelle@gmail.com',
-  // TODO: confirm the TikTok handle.
-  tiktok: 'https://www.tiktok.com/@terribelle',
+  email: 'terribellecouture@gmail.com',
+  tiktok: 'https://www.tiktok.com/@terribelle_couture',
   url: 'https://terribelle.com',
   // TODO: replace with the carriers enabled in Shopify → Settings → Shipping.
   shippingPartners: ['DHL Express', 'UPS', 'FedEx'],
