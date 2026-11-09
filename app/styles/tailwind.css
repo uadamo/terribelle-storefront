@@ -1,6 +1,13 @@
 /**
- * Configure Tailwind v4 in this file using CSS variables and directives:
- * https://tailwindcss.com/docs/v4-beta#css-first-configuration
+ * Tailwind v4 (utilities available if needed). Brand tokens are also exposed
+ * as Tailwind theme values, e.g. `bg-cream text-ink font-display`.
  */
-
 @import 'tailwindcss';
+
+@theme {
+  --color-ink: #0b0b0b;
+  --color-cream: #f7f5f2;
+  --color-accent: #57e38f;
+  --font-logo: 'Imbue', 'Didot', serif;
+  --font-display: 'Questrial', 'Helvetica Neue', Arial, sans-serif;
+}

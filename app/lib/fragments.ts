@@ -171,72 +171,70 @@ export const CART_QUERY_FRAGMENT = `#graphql
   }
 ` as const;
 
-const MENU_FRAGMENT = `#graphql
-  fragment MenuItem on MenuItem {
-    id
-    resourceId
-    tags
-    title
-    type
-    url
-  }
-  fragment ChildMenuItem on MenuItem {
-    ...MenuItem
-  }
-  fragment ParentMenuItem on MenuItem {
-    ...MenuItem
-    items {
-      ...ChildMenuItem
+export const SHOP_QUERY = `#graphql
+  query Shop($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    shop {
+      id
+      name
+      description
+      paymentSettings {
+        acceptedCardBrands
+        supportedDigitalWallets
+      }
     }
-  }
-  fragment Menu on Menu {
-    id
-    items {
-      ...ParentMenuItem
-    }
-  }
-` as const;
-
-export const HEADER_QUERY = `#graphql
-  fragment Shop on Shop {
-    id
-    name
-    description
-    primaryDomain {
-      url
-    }
-    brand {
-      logo {
-        image {
-          url
+    localization {
+      country {
+        isoCode
+        name
+        currency {
+          isoCode
+        }
+      }
+      availableCountries {
+        isoCode
+        name
+        currency {
+          isoCode
+          symbol
         }
       }
     }
   }
-  query Header(
-    $country: CountryCode
-    $headerMenuHandle: String!
-    $language: LanguageCode
-  ) @inContext(language: $language, country: $country) {
-    shop {
-      ...Shop
-    }
-    menu(handle: $headerMenuHandle) {
-      ...Menu
-    }
-  }
-  ${MENU_FRAGMENT}
 ` as const;
 
-export const FOOTER_QUERY = `#graphql
-  query Footer(
-    $country: CountryCode
-    $footerMenuHandle: String!
-    $language: LanguageCode
-  ) @inContext(language: $language, country: $country) {
-    menu(handle: $footerMenuHandle) {
-      ...Menu
+/** Fields shared by every product tile (feed, home). */
+export const PRODUCT_CARD_FRAGMENT = `#graphql
+  fragment ProductCard on Product {
+    id
+    handle
+    title
+    productType
+    availableForSale
+    bespoke: metafield(namespace: "custom", key: "bespoke") {
+      value
+    }
+    edition: metafield(namespace: "custom", key: "edition") {
+      value
+    }
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    images(first: 2) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
     }
   }
-  ${MENU_FRAGMENT}
 ` as const;

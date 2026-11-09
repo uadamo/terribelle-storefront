@@ -1,129 +1,132 @@
-import {Suspense} from 'react';
-import {Await, NavLink} from 'react-router';
-import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
+import {Link} from 'react-router';
+import type {ShopQuery} from 'storefrontapi.generated';
+import {SITE} from '~/lib/site';
+import {useLocalePath, useT} from '~/lib/i18n';
+import {useUI} from './UIProvider';
+import {Reveal} from './Reveal';
+import {ShareMenu} from './ShareMenu';
+import {LocalizationForm} from './LocalizationForm';
 
-interface FooterProps {
-  footer: Promise<FooterQuery | null>;
-  header: HeaderQuery;
-  publicStoreDomain: string;
-}
-
-export function Footer({
-  footer: footerPromise,
-  header,
-  publicStoreDomain,
-}: FooterProps) {
-  return (
-    <Suspense>
-      <Await resolve={footerPromise}>
-        {(footer) => (
-          <footer className="footer">
-            {footer?.menu && header.shop.primaryDomain?.url && (
-              <FooterMenu
-                menu={footer.menu}
-                primaryDomainUrl={header.shop.primaryDomain.url}
-                publicStoreDomain={publicStoreDomain}
-              />
-            )}
-          </footer>
-        )}
-      </Await>
-    </Suspense>
-  );
-}
-
-function FooterMenu({
-  menu,
-  primaryDomainUrl,
-  publicStoreDomain,
-}: {
-  menu: FooterQuery['menu'];
-  primaryDomainUrl: FooterProps['header']['shop']['primaryDomain']['url'];
-  publicStoreDomain: string;
-}) {
-  return (
-    <nav className="footer-menu" role="navigation">
-      {(menu || FALLBACK_FOOTER_MENU).items.map((item) => {
-        if (!item.url) return null;
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
-        const isExternal = !url.startsWith('/');
-        return isExternal ? (
-          <a href={url} key={item.id} rel="noopener noreferrer" target="_blank">
-            {item.title}
-          </a>
-        ) : (
-          <NavLink
-            end
-            key={item.id}
-            prefetch="intent"
-            style={activeLinkStyle}
-            to={url}
-          >
-            {item.title}
-          </NavLink>
-        );
-      })}
-    </nav>
-  );
-}
-
-const FALLBACK_FOOTER_MENU = {
-  id: 'gid://shopify/Menu/199655620664',
-  items: [
-    {
-      id: 'gid://shopify/MenuItem/461633060920',
-      resourceId: 'gid://shopify/ShopPolicy/23358046264',
-      tags: [],
-      title: 'Privacy Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/privacy-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633093688',
-      resourceId: 'gid://shopify/ShopPolicy/23358013496',
-      tags: [],
-      title: 'Refund Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/refund-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633126456',
-      resourceId: 'gid://shopify/ShopPolicy/23358111800',
-      tags: [],
-      title: 'Shipping Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/shipping-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633159224',
-      resourceId: 'gid://shopify/ShopPolicy/23358079032',
-      tags: [],
-      title: 'Terms of Service',
-      type: 'SHOP_POLICY',
-      url: '/policies/terms-of-service',
-      items: [],
-    },
-  ],
+const PAYMENT_LABELS: Record<string, string> = {
+  VISA: 'Visa',
+  MASTERCARD: 'Mastercard',
+  AMERICAN_EXPRESS: 'American Express',
+  DISCOVER: 'Discover',
+  DINERS_CLUB: 'Diners Club',
+  JCB: 'JCB',
+  APPLE_PAY: 'Apple Pay',
+  GOOGLE_PAY: 'Google Pay',
+  ANDROID_PAY: 'Google Pay',
+  SHOPIFY_PAY: 'Shop Pay',
 };
 
-function activeLinkStyle({
-  isActive,
-  isPending,
+export function Footer({
+  shop,
+  localization,
 }: {
-  isActive: boolean;
-  isPending: boolean;
+  shop: ShopQuery['shop'];
+  localization: ShopQuery['localization'];
 }) {
-  return {
-    fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'white',
-  };
+  const t = useT();
+  const to = useLocalePath();
+  const {openContact, openLegal} = useUI();
+
+  const fromShop = [
+    ...shop.paymentSettings.acceptedCardBrands,
+    ...shop.paymentSettings.supportedDigitalWallets,
+  ].map((code) => PAYMENT_LABELS[code] ?? code);
+  const payments = [...new Set(fromShop.length ? fromShop : SITE.fallbackPaymentMethods)];
+
+  return (
+    <footer className="site-footer" data-theme="dark">
+      <Reveal className="site-footer__grid">
+        <section className="site-footer__col" aria-labelledby="ft-contact">
+          <h2 id="ft-contact" className="footer-title">
+            {t('nav.contact')}
+          </h2>
+          <ul>
+            <li>
+              <button
+                type="button"
+                className="footer-link"
+                aria-haspopup="dialog"
+                onClick={() => openContact()}
+              >
+                {t('footer.contact')}
+              </button>
+            </li>
+            <li>
+              <a className="footer-link" href={SITE.tiktok} target="_blank" rel="noopener noreferrer">
+                {t('footer.follow')}
+                <span className="sr-only"> {t('a11y.newTab')}</span>
+              </a>
+            </li>
+            <li>
+              <ShareMenu />
+            </li>
+          </ul>
+        </section>
+
+        <section className="site-footer__col" aria-labelledby="ft-pay">
+          <h2 id="ft-pay" className="footer-title">
+            {t('footer.payments')}
+          </h2>
+          <ul className="chips">
+            {payments.map((p) => (
+              <li key={p} className="chip">
+                {p}
+              </li>
+            ))}
+          </ul>
+          <p className="footer-note">{t('footer.paymentsNote')}</p>
+        </section>
+
+        <section className="site-footer__col" aria-labelledby="ft-ship">
+          <h2 id="ft-ship" className="footer-title">
+            {t('footer.shippingPartners')}
+          </h2>
+          <ul className="chips">
+            {SITE.shippingPartners.map((p) => (
+              <li key={p} className="chip">
+                {p}
+              </li>
+            ))}
+          </ul>
+          <p className="footer-note">{t('footer.shippingNote')}</p>
+        </section>
+
+        <nav className="site-footer__col" aria-label={t('a11y.footerNav')}>
+          <h2 className="footer-title">Terribelle</h2>
+          <ul>
+            <li>
+              <button type="button" className="footer-link" aria-haspopup="dialog" onClick={() => openLegal('privacy')}>
+                {t('footer.privacy')}
+              </button>
+            </li>
+            <li>
+              <button type="button" className="footer-link" aria-haspopup="dialog" onClick={() => openLegal('orders')}>
+                {t('footer.orders')}
+              </button>
+            </li>
+            <li>
+              <Link className="footer-link" to={to('/legal/accessibility')}>
+                {t('footer.accessibility')}
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        <div className="site-footer__col site-footer__col--l10n">
+          <LocalizationForm localization={localization} />
+        </div>
+      </Reveal>
+
+      <Reveal className="site-footer__bottom" delay={120}>
+        <p className="site-footer__wordmark" aria-hidden="true">
+          TERRIBELLE
+        </p>
+        <p className="footer-note">{t('footer.rights', {year: new Date().getFullYear()})}</p>
+      </Reveal>
+    </footer>
+  );
 }
