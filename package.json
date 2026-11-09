@@ -11,10 +11,14 @@
     "lint": "eslint --no-error-on-unmatched-pattern .",
     "typecheck": "react-router typegen && tsc --noEmit",
     "codegen": "shopify hydrogen codegen && react-router typegen",
-    "dev:relay": "NODE_USE_ENV_PROXY=1 STORE_DOMAIN=terribelle-ev5cs4ik.myshopify.com node scripts/dev-store-proxy.mjs"
+    "dev:relay": "NODE_USE_ENV_PROXY=1 STORE_DOMAIN=terribelle-ev5cs4ik.myshopify.com node scripts/dev-store-proxy.mjs",
+    "seed:images": "node scripts/seed/generate-plates.mjs",
+    "seed": "NODE_USE_ENV_PROXY=1 node scripts/seed/seed.mjs"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {
+    "@fontsource/imbue": "^5.3.0",
+    "@fontsource/questrial": "^5.3.0",
     "@shopify/hydrogen": "2026.4.7",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
