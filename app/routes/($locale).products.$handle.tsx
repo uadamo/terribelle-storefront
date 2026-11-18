@@ -15,7 +15,8 @@ import type {ProductFragment} from 'storefrontapi.generated';
 import {ProductForm} from '~/components/ProductForm';
 import {useUI} from '~/components/UIProvider';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {useT} from '~/lib/i18n';
+import {useLocale, useT} from '~/lib/i18n';
+import {gloss} from '~/i18n/glossary';
 
 export const meta: Route.MetaFunction = ({data}) => [
   {title: `${data?.product.seo.title ?? data?.product.title ?? ''} — Terribelle`},
@@ -59,6 +60,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 export default function Product() {
   const {product, composition, measurementFields} = useLoaderData<typeof loader>();
   const t = useT();
+  const {lang} = useLocale();
   const {openLegal, openContact} = useUI();
 
   const selectedVariant = useOptimisticVariant(
@@ -131,10 +133,10 @@ export default function Product() {
                     <tbody>
                       {composition.map((row, i) => (
                         <tr key={i}>
-                          <th scope="row">{row.part ?? '—'}</th>
+                          <th scope="row">{row.part ? gloss(lang, row.part) : '—'}</th>
                           <td>
                             {Object.entries(row.fibres)
-                              .map(([fibre, pct]) => `${pct}% ${fibre}`)
+                              .map(([fibre, pct]) => `${pct}% ${gloss(lang, fibre)}`)
                               .join(', ')}
                           </td>
                         </tr>

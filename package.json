@@ -13,7 +13,8 @@
     "codegen": "shopify hydrogen codegen && react-router typegen",
     "dev:relay": "NODE_USE_ENV_PROXY=1 STORE_DOMAIN=terribelle-ev5cs4ik.myshopify.com node scripts/dev-store-proxy.mjs",
     "seed:images": "node scripts/seed/generate-plates.mjs",
-    "seed": "NODE_USE_ENV_PROXY=1 node scripts/seed/seed.mjs"
+    "seed": "NODE_USE_ENV_PROXY=1 node scripts/seed/seed.mjs",
+    "seed:localize": "NODE_USE_ENV_PROXY=1 node scripts/seed/localize.mjs"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {
