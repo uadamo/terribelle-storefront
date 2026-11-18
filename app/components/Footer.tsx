@@ -6,6 +6,7 @@ import {useUI} from './UIProvider';
 import {Reveal} from './Reveal';
 import {ShareMenu} from './ShareMenu';
 import {LocalizationForm} from './LocalizationForm';
+import {Logo} from './Logo';
 
 const PAYMENT_LABELS: Record<string, string> = {
   VISA: 'Visa',
@@ -122,9 +123,7 @@ export function Footer({
       </Reveal>
 
       <Reveal className="site-footer__bottom" delay={120}>
-        <p className="site-footer__wordmark" aria-hidden="true">
-          TERRIBELLE
-        </p>
+        <Logo variant="lockup" className="site-footer__wordmark" decorative />
         <p className="footer-note">{t('footer.rights', {year: new Date().getFullYear()})}</p>
       </Reveal>
     </footer>

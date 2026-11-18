@@ -62,7 +62,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
 }
 
 export default function ProductFeed() {
-  const {header, description, collections, collection, products} = useLoaderData<typeof loader>();
+  const {header, collections, collection, products} = useLoaderData<typeof loader>();
   const t = useT();
   const to = useLocalePath();
   const [params] = useSearchParams();
@@ -71,13 +71,8 @@ export default function ProductFeed() {
   return (
     <div className="feed">
       <header className="feed__head">
-        <p className="eyebrow">
-          <span className="dot" aria-hidden="true" />
-          {t('feed.title')}
-        </p>
-        <h1 className="display-xl feed__title">{collection?.title ?? header}</h1>
-        <p className="lede feed__intro">{collection?.description || description}</p>
-
+        {/* Visually hidden: the page keeps a proper heading for assistive tech. */}
+        <h1 className="sr-only">{collection?.title ?? header ?? t('feed.heading')}</h1>
         {collections.length > 0 && (
           <nav aria-label={t('feed.filterLabel')}>
             <ul className="filters">
@@ -119,8 +114,8 @@ export default function ProductFeed() {
             ) : (
               <ul className="feed__grid">
                 {(nodes as ProductCardFragment[]).map((product, i) => (
-                  <Reveal as="li" key={product.id} className="feed__item" delay={(i % 3) * 80}>
-                    <ProductCard product={product} index={i} loading={i < 3 ? 'eager' : 'lazy'} headingLevel={2} />
+                  <Reveal as="li" key={product.id} className="feed__item" delay={(i % 4) * 60}>
+                    <ProductCard product={product} index={i} loading={i < 4 ? 'eager' : 'lazy'} headingLevel={2} variant="grid" sizes="(min-width: 64em) 25vw, 50vw" />
                   </Reveal>
                 ))}
               </ul>

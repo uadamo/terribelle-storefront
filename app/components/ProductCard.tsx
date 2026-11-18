@@ -10,7 +10,9 @@ export function ProductCard({
   loading = 'lazy',
   sizes = '(min-width: 64em) 33vw, 50vw',
   transition = true,
+  variant = 'default',
 }: {
+  variant?: 'default' | 'grid';
   product: ProductCardFragment;
   index?: number;
   headingLevel?: 2 | 3;
@@ -29,7 +31,7 @@ export function ProductCard({
   return (
     <Link
       to={to(`/products/${product.handle}`)}
-      className="card"
+      className={`card card--${variant}`}
       prefetch="intent"
       viewTransition
     >

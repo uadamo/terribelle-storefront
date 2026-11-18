@@ -167,7 +167,7 @@ function plate({garment, n, title, theme, crop}) {
   const viewBox = crop ?? `0 0 ${W} ${H}`;
   const art = garments[garment](fg, fill);
   return `<!doctype html><html><head><style>
-    @font-face{font-family:Imbue;src:url(${font('imbue/files/imbue-latin-400-normal.woff2')})}
+    @font-face{font-family:Imbue;src:url(${font('../@fontsource-variable/imbue/files/imbue-latin-opsz-normal.woff2')})}
     @font-face{font-family:Questrial;src:url(${font('questrial/files/questrial-latin-400-normal.woff2')})}
     html,body{margin:0;background:${bg}}
     .p{position:relative;width:${W}px;height:${H}px;overflow:hidden;background:${bg};color:${fg}}

@@ -6,8 +6,6 @@ export const en = {
   'a11y.close': 'Close',
   'a11y.newTab': '(opens in a new tab)',
   'a11y.loading': 'Loading',
-  'a11y.pauseMotion': 'Pause scrolling text',
-  'a11y.playMotion': 'Play scrolling text',
   'a11y.mainNav': 'Main',
   'a11y.footerNav': 'Footer',
 
@@ -22,19 +20,28 @@ export const en = {
 
   // Home
   'home.eyebrow': 'Archive N° 01',
-  'home.heroLine1': 'Vintage',
-  'home.heroLine2': 'silhouettes,',
-  'home.heroLine3': 'made new',
-  'home.heroIntro':
-    'Terribelle is a couture atelier reviving historic techniques — boning, hand-set lace, hoops and drapes — for bridal and evening pieces made in limited numbers or to measure.',
+  'home.heroNote1': 'Couture from the archive',
+  'home.heroNote2': 'Made to measure, in limited numbers',
+  'home.featuredLede': 'The first archive: bridal gowns, veils and corsetry drawn from vintage silhouettes — each piece made in limited numbers or only for you.',
+  'mtmSection.eyebrow': 'Bespoke',
+  'mtmSection.titleSmall': 'Made to',
+  'mtmSection.titleLarge': 'your measurements',
+  'mtmSection.body': 'Terribelle creates exclusive, limited works of art that are made to measure. Each piece begins as a historic pattern, which we redraft to your size — so every line of the silhouette is cut for your body alone, then sewn and finished by hand.',
+  'mtmSection.step1': 'Choose a piece from the archive.',
+  'mtmSection.step2': 'Share your measurements using our guide.',
+  'mtmSection.step3': 'We adapt the pattern to your size and make it by hand.',
+  'mtmSection.step4': 'Your piece is delivered — made only once, only for you.',
+  'mtmSection.cta': 'Explore made-to-measure pieces',
+  'mtmSection.side': 'Exclusive · Limited · Made for you',
+  'mtmSection.ghost': 'Sur mesure',
+  'feed.heading': 'Products',
+  'carousel.prev': 'Previous image',
+  'carousel.next': 'Next image',
+  'carousel.show': 'Show image {n}',
+  'carousel.slide': '{n} of {total}',
+  'l10n.autoApply': 'The page updates as soon as you choose.',
   'home.discover': 'Discover the archive',
-  'home.marquee': 'Made to measure · Limited editions · Vintage techniques · Hand finished',
-  'home.indexTitle': 'Index',
-  'home.indexIntro': 'Selected pieces from the first archive.',
   'home.featuredTitle': 'Featured',
-  'home.atelierTitle': 'The atelier',
-  'home.atelierBody':
-    'Every piece starts as a drawing and a toile. Patterns are drafted by hand, corsetry is boned in steel, and veils are edged stitch by stitch. Nothing is made in volume; much is made only once.',
   'home.viewAll': 'View all pieces',
 
   // Product feed

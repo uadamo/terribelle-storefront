@@ -211,50 +211,106 @@ function Gallery({product}: {product: ProductFragment}) {
   const images = product.images.nodes;
   const track = useRef<HTMLUListElement>(null);
   const [current, setCurrent] = useState(0);
+  const total = images.length;
 
-  // Track which image is visible in the mobile carousel.
+  // Keep the counter in sync with swipes / trackpad scrolling.
   useEffect(() => {
     const el = track.current;
     if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setCurrent(Number((e.target as HTMLElement).dataset.index));
-        }
-      },
-      {root: el, threshold: 0.6},
-    );
-    el.querySelectorAll('li').forEach((li) => io.observe(li));
-    return () => io.disconnect();
-  }, [images.length]);
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setCurrent(Math.round(el.scrollLeft / el.clientWidth)));
+    };
+    el.addEventListener('scroll', onScroll, {passive: true});
+    return () => {
+      cancelAnimationFrame(frame);
+      el.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
+  function go(index: number) {
+    const el = track.current;
+    if (!el || !total) return;
+    const i = (index + total) % total;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollTo({left: i * el.clientWidth, behavior: reduce ? 'auto' : 'smooth'});
+    setCurrent(i);
+  }
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      go(current + 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      go(current - 1);
+    }
+  }
 
   return (
     <div className="pdp__gallery">
-      {/* Scrollable region: focusable so keyboard users can scroll it on mobile (axe: scrollable-region-focusable). */}
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-      <ul className="gallery" ref={track} tabIndex={0} aria-label={t('product.images', {title: product.title})}>
-        {images.map((img, i) => (
-          <li
-            key={img.id}
-            data-index={i}
-            className="gallery__item zoom"
-            style={i === 0 ? {viewTransitionName: `media-${product.handle}`} : undefined}
-          >
-            <Image
-              data={img}
-              alt={img.altText ?? `${product.title} — ${t('product.imageN', {n: i + 1, total: images.length})}`}
-              sizes="(min-width: 64em) 55vw, 100vw"
-              aspectRatio="4/5"
-              loading={i === 0 ? 'eager' : 'lazy'}
-            />
-          </li>
-        ))}
-      </ul>
-      {images.length > 1 && (
-        <p className="gallery__count" aria-hidden="true">
-          {String(current + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
-        </p>
-      )}
+      <section
+        className="carousel"
+        aria-roledescription="carousel"
+        aria-label={t('product.images', {title: product.title})}
+      >
+        {/* Focusable so keyboard users can use the arrow keys (axe: scrollable-region-focusable). */}
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions */}
+        <ul className="carousel__track" ref={track} tabIndex={0} onKeyDown={onKeyDown} aria-label={t('product.images', {title: product.title})}>
+          {images.map((img, i) => (
+            <li
+              key={img.id}
+              className="carousel__slide"
+              aria-roledescription="slide"
+              aria-label={t('carousel.slide', {n: i + 1, total})}
+              style={i === 0 ? {viewTransitionName: `media-${product.handle}`} : undefined}
+            >
+              <Image
+                data={img}
+                alt={img.altText ?? `${product.title} — ${t('product.imageN', {n: i + 1, total})}`}
+                sizes="(min-width: 64em) 55vw, 100vw"
+                loading={i === 0 ? 'eager' : 'lazy'}
+              />
+            </li>
+          ))}
+        </ul>
+
+        {total > 1 && (
+          <div className="carousel__controls">
+            <button type="button" className="carousel__btn" onClick={() => go(current - 1)} aria-label={t('carousel.prev')}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="1.3" /></svg>
+            </button>
+            <p className="carousel__count" aria-live="polite">
+              <span className="sr-only">{t('carousel.slide', {n: current + 1, total})}</span>
+              <span aria-hidden="true">
+                {String(current + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+              </span>
+            </p>
+            <button type="button" className="carousel__btn" onClick={() => go(current + 1)} aria-label={t('carousel.next')}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="1.3" /></svg>
+            </button>
+          </div>
+        )}
+
+        {total > 1 && (
+          <ul className="carousel__thumbs">
+            {images.map((img, i) => (
+              <li key={img.id}>
+                <button
+                  type="button"
+                  className="carousel__thumb"
+                  aria-current={i === current ? 'true' : undefined}
+                  aria-label={t('carousel.show', {n: i + 1})}
+                  onClick={() => go(i)}
+                >
+                  <Image data={img} alt="" width={96} aspectRatio="4/5" loading="lazy" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

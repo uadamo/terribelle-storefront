@@ -4,6 +4,7 @@ import {useOptimisticCart} from '@shopify/hydrogen';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useLocalePath, useT} from '~/lib/i18n';
 import {useUI} from './UIProvider';
+import {Logo} from './Logo';
 
 /**
  * Fixed, background-less navigation. Text is ink by default and fades to cream
@@ -56,7 +57,7 @@ export function Header({cart}: {cart: Promise<CartApiQueryFragment | null>}) {
   return (
     <header className={`site-header${overDark ? ' is-inverted' : ''}`}>
       <Link to={to('/')} className="site-header__logo" aria-label={t('nav.home')} viewTransition>
-        TERRIBELLE
+        <Logo variant="wordmark" decorative />
       </Link>
       <nav aria-label={t('a11y.mainNav')}>
         <ul className="site-header__nav">
