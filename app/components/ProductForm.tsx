@@ -12,11 +12,16 @@ type Variant = NonNullable<ProductFragment['selectedOrFirstAvailableVariant']>;
 /** Fallback swatch colours when the option value has no Shopify swatch. */
 const SWATCHES: Record<string, string> = {
   ivory: '#FBF7EC',
+  ivoire: '#FBF7EC',
   'off-white': '#F2EEE6',
+  'blanc cassé': '#F2EEE6',
   champagne: '#EAD7B7',
   black: '#0b0b0b',
+  noir: '#0b0b0b',
   white: '#ffffff',
+  blanc: '#ffffff',
   cream: '#F7F5F2',
+  crème: '#F7F5F2',
 };
 
 export function ProductForm({
@@ -120,7 +125,7 @@ export function ProductForm({
             </p>
           );
         }
-        const isColor = /colou?r/i.test(option.name);
+        const isColor = /colou?r|couleur/i.test(option.name);
         return (
           <fieldset key={option.name} className="option">
             <legend className="option__label">

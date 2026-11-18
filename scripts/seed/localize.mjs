@@ -26,24 +26,33 @@ const MARKETS = [
 
 // --- 1. Markets ---------------------------------------------------------------
 function ensureMarkets() {
-  const existing = gql(`{ markets(first: 50) { nodes { id name handle status } } }`).markets.nodes;
-  log('existing markets:', existing.map((m) => `${m.name} (${m.handle}, ${m.status})`).join(', ') || 'none');
+  const existing = gql(`{ markets(first: 50) { nodes { id name handle status currencySettings { baseCurrency { currencyCode } } } } }`).markets.nodes;
+  log('existing markets:', existing.map((m) => `${m.name} (${m.handle}, ${m.currencySettings?.baseCurrency?.currencyCode})`).join(', ') || 'none');
   for (const m of MARKETS) {
-    if (existing.some((e) => e.handle === m.handle)) {
-      log('market exists', m.handle);
-      continue;
+    let market = existing.find((e) => e.handle === m.handle);
+    if (!market) {
+      market = gql(`mutation($input: MarketCreateInput!) { marketCreate(input: $input) { market { id currencySettings { baseCurrency { currencyCode } } } userErrors { field message } } }`, {
+        input: {
+          name: m.name,
+          handle: m.handle,
+          status: 'ACTIVE',
+          conditions: {regionsCondition: {regions: m.countries.map((countryCode) => ({countryCode}))}},
+          ...(m.priceInclusions ? {priceInclusions: m.priceInclusions} : {}),
+        },
+      }).marketCreate.market;
+      log('market created', m.name);
     }
-    gql(`mutation($input: MarketCreateInput!) { marketCreate(input: $input) { market { id } userErrors { field message } } }`, {
-      input: {
-        name: m.name,
-        handle: m.handle,
-        status: 'ACTIVE',
-        conditions: {regionsCondition: {regions: m.countries.map((countryCode) => ({countryCode}))}},
-        currencySettings: {baseCurrency: m.currency, localCurrencies: false},
-        ...(m.priceInclusions ? {priceInclusions: m.priceInclusions} : {}),
-      },
-    });
-    log('market created', m.name, m.currency);
+    if (market.currencySettings?.baseCurrency?.currencyCode === m.currency) continue;
+    // Local currencies need Shopify Payments (or another multi-currency gateway).
+    try {
+      gql(`mutation($id: ID!, $input: MarketUpdateInput!) { marketUpdate(id: $id, input: $input) { market { id } userErrors { field message } } }`, {
+        id: market.id,
+        input: {currencySettings: {baseCurrency: m.currency, localCurrencies: false}},
+      });
+      log(`market ${m.handle}: currency set to ${m.currency}`);
+    } catch (err) {
+      log(`market ${m.handle}: could not set ${m.currency} — enable Shopify Payments, then re-run. (${String(err.message).slice(0, 160)})`);
+    }
   }
 }
 
@@ -54,8 +63,10 @@ function ensureFrench() {
     gql(`mutation { shopLocaleEnable(locale: "fr") { shopLocale { locale } userErrors { field message } } }`);
     log('french enabled');
   }
-  gql(`mutation { shopLocaleUpdate(locale: "fr", shopLocale: {published: true}) { shopLocale { locale published } userErrors { field message } } }`);
-  log('french published');
+  // Attach French to every web presence (domain) so the Storefront API serves it.
+  const presences = gql(`{ webPresences(first: 20) { nodes { id } } }`).webPresences.nodes.map((w) => w.id);
+  gql(`mutation($ids: [ID!]) { shopLocaleUpdate(locale: "fr", shopLocale: {published: true, marketWebPresenceIds: $ids}) { shopLocale { locale published } userErrors { field message } } }`, {ids: presences});
+  log(`french published on ${presences.length} web presence(s)`);
 }
 
 // --- 3. Translations -------------------------------------------------------------------
