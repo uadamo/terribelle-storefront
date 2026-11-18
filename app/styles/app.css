@@ -535,11 +535,22 @@ main:focus {
   }
 }
 @media (max-width: 48em) {
+  /* Fill the phone screen exactly (svh = visible height with browser bars shown). */
   .hero {
-    min-height: 82svh;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+  .hero__media {
+    grid-template-columns: 1fr;
+  }
+  .hero__img--1 {
+    display: none;
   }
   .hero__note--right {
     display: none;
+  }
+  .hero__logo {
+    bottom: 5.5rem;
   }
 }
 
