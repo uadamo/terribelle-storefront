@@ -44,7 +44,7 @@ function Hero({featured}: {featured: ProductCardFragment[]}) {
   const images = featured.map((p) => p.images.nodes[0]).filter(Boolean).slice(0, 2);
 
   return (
-    <section className="hero" aria-labelledby="hero-title">
+    <section className="hero" aria-labelledby="hero-title" data-theme="dark">
       <div className="hero__media" aria-hidden="true">
         {images.map((img, i) => (
           <div key={img.id} className={`hero__img hero__img--${i}`}>

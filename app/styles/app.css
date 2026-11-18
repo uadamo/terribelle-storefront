@@ -459,12 +459,23 @@ main:focus {
 }
 .hero__img {
   overflow: hidden;
-  background: #ece8e2;
+  background: #2a2826;
+}
+/* Shade the top band so the cream navigation and notes stay legible over any photo. */
+.hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(11, 11, 11, 0.62) 0, rgba(11, 11, 11, 0) 9rem),
+    linear-gradient(to top, rgba(11, 11, 11, 0.5) 0, rgba(11, 11, 11, 0) 55%);
 }
 .hero__img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 25%;
   animation: hero-in 1.8s var(--ease-expo) both;
 }
 .hero__img--1 img {
@@ -479,6 +490,7 @@ main:focus {
 .hero__note {
   position: absolute;
   z-index: 2;
+  color: var(--cream);
   top: calc(var(--header-h) + 1rem);
   font-family: var(--font-display);
   text-transform: uppercase;
@@ -493,7 +505,6 @@ main:focus {
 .hero__note--right {
   right: var(--pad);
 }
-/* Logos are exempt from contrast rules; difference blending keeps it legible on any image. */
 .hero__logo {
   position: absolute;
   z-index: 2;
@@ -501,7 +512,6 @@ main:focus {
   right: var(--pad);
   bottom: clamp(4.5rem, 9vw, 7rem);
   color: var(--cream);
-  mix-blend-mode: difference;
   animation: logo-up 1.6s var(--ease-expo) 0.25s both;
 }
 .hero__logo svg {
