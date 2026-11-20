@@ -8,7 +8,7 @@ export function ProductCard({
   index,
   headingLevel = 3,
   loading = 'lazy',
-  sizes = '(min-width: 64em) 33vw, (min-width: 30em) 50vw, 100vw',
+  sizes = '(min-width: 64em) 25vw, (min-width: 40em) 33vw, 50vw',
   transition = true,
   variant = 'default',
 }: {

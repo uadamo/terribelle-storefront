@@ -154,14 +154,14 @@ function Magazine({
   const [first, second, third, fourth] = stories;
 
   return (
-    <section className="mag" aria-labelledby="mag-title" data-belladonna>
-      {/* The brand emblem drifting over the photographs (decorative). */}
-      <FloatingBelladonna />
+    <section className="mag" aria-labelledby="mag-title">
       <h2 id="mag-title" className="sr-only">
         {collectionTitle ? `${t('home.eyebrow')} — ${collectionTitle}` : t('home.eyebrow')}
       </h2>
       {(first || second) && (
         <div className="mag__pair">
+          {/* The brand emblem: belladonna floating as one layer over these photographs. */}
+          <FloatingBelladonna />
           {first && <Spread product={first} n={1} layout="tall" />}
           {second && <Spread product={second} n={2} layout="offset" />}
         </div>

@@ -76,11 +76,11 @@ export async function loader({context, request}: Route.LoaderArgs) {
 
 /** Columns used to split products into rows (videos sit between rows). */
 function useColumns() {
-  const [cols, setCols] = useState(3);
+  const [cols, setCols] = useState(4);
   useEffect(() => {
-    const wide = window.matchMedia('(min-width: 64em)');
-    const mid = window.matchMedia('(min-width: 30em)');
-    const update = () => setCols(wide.matches ? 3 : mid.matches ? 2 : 1);
+    const wide = window.matchMedia('(min-width: 64em)'); // laptops and up: 4 per row
+    const mid = window.matchMedia('(min-width: 40em)'); // tablets: 3 per row
+    const update = () => setCols(wide.matches ? 4 : mid.matches ? 3 : 2); // phones: 2 per row
     update();
     wide.addEventListener('change', update);
     mid.addEventListener('change', update);

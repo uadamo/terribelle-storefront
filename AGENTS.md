@@ -40,8 +40,9 @@ On a normal machine, skip the relay and use the real domain and token.
   product rows; `custom.tagline` under the title. Menu collections = `product_feed.collections` (full-page menu, `CollectionsMenu`). Seed: `npm run seed:campaigns`.
 - **Motion**: `ParallaxImage` (react-scroll-parallax, off for reduced motion); decorative Three.js scenes in
   `app/components/three` (lazy-loaded, paused off-screen, single frame for reduced motion): pins/buttons in the
-  made-to-measure section, and the brand emblem — procedural belladonna berries + flowers (`belladonnaModels.ts`)
-  floating with scroll-linked parallax over the home magazine (`FloatingBelladonna`, hidden for reduced motion).
+  made-to-measure section, and the brand emblem — procedural belladonna berries + flowers (`belladonnaModels.ts`,
+  relief-modelled leaves with vein bump maps) floating as one layer over the first magazine pair (`FloatingBelladonna`).
+- **Products grid**: 4 per row on laptops (≥64em), 3 on tablets, 2 on phones (`useColumns`).
 - **No skip link** by design; landmarks (header/nav/main) provide bypass (WCAG 2.4.1).
 - **Media treatment**: `.grain` on photo wrappers (film grain that fades on hover); `<AutoVideo>` for silent videos
   (pauses off-screen, still image for reduced motion, pause button for WCAG 2.2.2). Buttons are borderless, transparent frosted glass (`.button`, `.glass`); no vertical rules; type is Imbue + Questrial only.

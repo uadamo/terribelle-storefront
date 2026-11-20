@@ -9,35 +9,123 @@ import type {ThreeModule} from './useThreeStage';
  *    five shallow flared lobes, greenish at the base, held in a green calyx.
  */
 
-/** A pointed, slightly cupped sepal/petal blade (length along +Y). */
+/**
+ * A pointed leaf blade (length along +Y) built as a real surface grid so it can
+ * carry relief: a raised midrib, grooved lateral veins, cupping, a gently wavy
+ * edge and a curled tip. UVs map u across (0..1) and v along (0..1) for the
+ * vein texture.
+ */
 function bladeGeometry(T: ThreeModule, length: number, width: number, curl: number, segments = 10, tint?: string) {
-  const shape = new T.Shape();
-  shape.moveTo(0, 0);
-  shape.bezierCurveTo(width * 0.9, length * 0.18, width * 0.75, length * 0.62, 0, length);
-  shape.bezierCurveTo(-width * 0.75, length * 0.62, -width * 0.9, length * 0.18, 0, 0);
-  const geo = new T.ShapeGeometry(shape, segments);
-  const pos = geo.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    const t = y / length;
-    // Curl the tip away (toward +Z) and cup the blade across its width.
-    pos.setZ(i, curl * t * t * length + Math.abs(x) * 0.35 * (1 - t));
-  }
-  if (tint) {
-    // Darker at the base, lighter towards the tip, with a pale midrib.
-    const c = new T.Color(tint);
-    const colors: number[] = [];
-    for (let i = 0; i < pos.count; i++) {
-      const t = pos.getY(i) / length;
-      const rib = Math.exp(-Math.pow(pos.getX(i) / (width * 0.12), 2)) * 0.12;
-      const k = 0.72 + 0.38 * t + rib;
-      colors.push(c.r * k, c.g * k, c.b * k);
+  const cols = 14;
+  const rows = Math.max(18, segments * 2);
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const colors: number[] = [];
+  const indices: number[] = [];
+  const c = new T.Color(tint ?? '#888888');
+  for (let r = 0; r <= rows; r++) {
+    const v = r / rows;
+    // Half-width: broad shoulders, pointed tip, narrow base.
+    const half = width * Math.pow(Math.sin(Math.PI * Math.pow(v, 0.62)), 1.1) * Math.pow(1 - v * 0.985, 0.5);
+    for (let k = 0; k <= cols; k++) {
+      const u = (k / cols) * 2 - 1; // -1 … 1 across
+      const x = u * half;
+      const y = v * length;
+      const au = Math.abs(u);
+      const midrib = 0.016 * length * Math.exp(-Math.pow(u / 0.09, 2)) * (1 - v * 0.6);
+      const veins = -0.006 * length * Math.pow(Math.abs(Math.sin((v * 6.5 - au * 1.6) * Math.PI)), 10) * (au > 0.08 ? 1 : 0);
+      const cup = au * au * 0.12 * length * (1 - v * 0.5);
+      const wave = 0.012 * length * Math.sin(v * 22 + u * 3) * au * au;
+      const tip = curl * v * v * length;
+      positions.push(x, y, tip + cup + midrib + veins + wave);
+      uvs.push((u + 1) / 2, v);
+      // Darker base → lighter tip, pale midrib, slightly darker edges.
+      const kk = 0.6 + 0.32 * v + 0.12 * Math.exp(-Math.pow(u / 0.07, 2)) - 0.1 * Math.pow(au, 4);
+      colors.push(c.r * kk, c.g * kk, c.b * kk);
     }
-    geo.setAttribute('color', new T.Float32BufferAttribute(colors, 3));
   }
+  for (let r = 0; r < rows; r++) {
+    for (let k = 0; k < cols; k++) {
+      const a = r * (cols + 1) + k;
+      const b = a + cols + 1;
+      indices.push(a, b, a + 1, b, b + 1, a + 1);
+    }
+  }
+  const geo = new T.BufferGeometry();
+  geo.setAttribute('position', new T.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('uv', new T.Float32BufferAttribute(uvs, 2));
+  if (tint) geo.setAttribute('color', new T.Float32BufferAttribute(colors, 3));
+  geo.setIndex(indices);
   geo.computeVertexNormals();
   return geo;
+}
+
+/** Fine vein + cell texture used as a bump map on leaves (white = raised). */
+function veinTexture(T: ThreeModule) {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.fillStyle = '#7a7a7a';
+  ctx.fillRect(0, 0, size, size);
+  // Cell grain.
+  const img = ctx.getImageData(0, 0, size, size);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const n = (Math.random() - 0.5) * 26;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = 122 + n;
+  }
+  ctx.putImageData(img, 0, 0);
+  // Midrib and branching lateral veins (v runs bottom → top of the canvas).
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(size / 2, size);
+  ctx.lineTo(size / 2, 0);
+  ctx.stroke();
+  for (let i = 1; i < 9; i++) {
+    const y = size - (i / 9) * size;
+    for (const dir of [-1, 1]) {
+      ctx.lineWidth = 2.6 - i * 0.15;
+      ctx.beginPath();
+      ctx.moveTo(size / 2, y);
+      ctx.quadraticCurveTo(size / 2 + dir * size * 0.22, y - size * 0.05, size / 2 + dir * size * 0.48, y - size * 0.16);
+      ctx.stroke();
+      // Finer secondary veins.
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(size / 2 + dir * size * 0.2, y - size * 0.035);
+      ctx.lineTo(size / 2 + dir * size * 0.26, y + size * 0.03);
+      ctx.stroke();
+    }
+  }
+  const tex = new T.CanvasTexture(canvas);
+  tex.wrapS = tex.wrapT = T.ClampToEdgeWrapping;
+  return tex;
+}
+
+/** Vertical veining for the flower bell (u wraps around the bell). */
+function petalTexture(T: ThreeModule) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(0, 0, 512, 128);
+  for (let i = 0; i < 60; i++) {
+    const x = (i / 60) * 512 + (Math.random() - 0.5) * 4;
+    ctx.strokeStyle = `rgba(255,255,255,${0.35 + Math.random() * 0.4})`;
+    ctx.lineWidth = i % 4 === 0 ? 2.2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.bezierCurveTo(x + 3, 40, x - 3, 90, x + (Math.random() - 0.5) * 6, 128);
+    ctx.stroke();
+  }
+  const tex = new T.CanvasTexture(canvas);
+  tex.wrapS = T.RepeatWrapping;
+  return tex;
 }
 
 export type BerryParts = {group: THREE.Group; dispose: () => void};
@@ -90,10 +178,15 @@ export function makeBerry(T: ThreeModule, calyxColor: string, envMap?: THREE.Tex
 
   // Star calyx: five broad sepals spreading flat beneath the berry, tips lifting.
   const sepalGeo = bladeGeometry(T, 0.44, 0.19, 0.22, 14, calyxColor);
-  const sepalMat = new T.MeshStandardMaterial({
+  const veins = veinTexture(T);
+  const sepalMat = new T.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.62,
+    roughness: 0.58,
     metalness: 0,
+    bumpMap: veins,
+    bumpScale: 2.2,
+    sheen: 0.15,
+    sheenColor: new T.Color('#d8cfe0'),
     side: T.DoubleSide,
   });
   for (let i = 0; i < 5; i++) {
@@ -121,6 +214,7 @@ export function makeBerry(T: ThreeModule, calyxColor: string, envMap?: THREE.Tex
       berryMat.dispose();
       sepalGeo.dispose();
       sepalMat.dispose();
+      veins?.dispose();
       stalkGeo.dispose();
       stalkMat.dispose();
     },
@@ -172,8 +266,11 @@ export function makeFlower(T: ThreeModule): BerryParts {
   }
   corollaGeo.setAttribute('color', new T.Float32BufferAttribute(colors, 3));
   corollaGeo.computeVertexNormals();
+  const petalBump = petalTexture(T);
   const corollaMat = new T.MeshPhysicalMaterial({
     vertexColors: true,
+    bumpMap: petalBump,
+    bumpScale: 1.6,
     roughness: 0.62,
     sheen: 0.8,
     sheenRoughness: 0.6,
@@ -185,7 +282,8 @@ export function makeFlower(T: ThreeModule): BerryParts {
 
   // Calyx: five green sepals hugging the base, tips flaring.
   const sepalGeo = bladeGeometry(T, 0.3, 0.13, 0.25, 12, '#86935a');
-  const sepalMat = new T.MeshStandardMaterial({vertexColors: true, roughness: 0.65, side: T.DoubleSide});
+  const calyxBump = veinTexture(T);
+  const sepalMat = new T.MeshPhysicalMaterial({vertexColors: true, roughness: 0.62, bumpMap: calyxBump, bumpScale: 2, sheen: 0.12, sheenColor: new T.Color('#e4ecd2'), side: T.DoubleSide});
   for (let i = 0; i < 5; i++) {
     const sepal = new T.Mesh(sepalGeo, sepalMat);
     const pivot = new T.Group();
@@ -211,8 +309,10 @@ export function makeFlower(T: ThreeModule): BerryParts {
     dispose() {
       corollaGeo.dispose();
       corollaMat.dispose();
+      petalBump?.dispose();
       sepalGeo.dispose();
       sepalMat.dispose();
+      calyxBump?.dispose();
       stemGeo.dispose();
       stemMat.dispose();
     },

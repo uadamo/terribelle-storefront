@@ -786,26 +786,16 @@ main:focus {
   overflow: hidden;
 }
 
-/* Belladonna emblem layer: pinned canvas over the magazine photographs. */
-.mag {
+/* Belladonna emblem: one floating layer over the first pair of photographs (bleeds a little). */
+.mag__pair {
   position: relative;
 }
-.belladonna-layer {
+.mag__pair > .belladonna-layer {
   position: absolute;
-  inset: 0;
+  inset: -6% 0 -8%;
   z-index: 5;
   pointer-events: none;
-}
-.belladonna-layer__stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-}
-.belladonna-layer__stage canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
+  grid-column: 1 / -1;
 }
 
 /* ---------- Home: made to your measurements (magazine feature + floating notions) ---------- */
@@ -1139,6 +1129,15 @@ main:focus {
 @media (max-width: 30em) {
   .shop__video {
     aspect-ratio: 4 / 5;
+  }
+  .shop__row {
+    gap: 1.25rem 0.9rem;
+  }
+  .card--grid .card__title {
+    font-size: 1.15rem;
+  }
+  .card--grid .card__text {
+    display: none; /* two narrow columns: keep name + price only */
   }
 }
 .card--grid {
