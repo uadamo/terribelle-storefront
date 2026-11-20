@@ -1,83 +1,114 @@
-import {useEffect, useId, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Link, useLocation} from 'react-router';
+import {Image} from '@shopify/hydrogen';
 import {useLocalePath, useT} from '~/lib/i18n';
 
-export type NavCollection = {id: string; handle: string; title: string};
+type Img = {url: string; altText?: string | null; width?: number | null; height?: number | null};
+export type NavCollection = {
+  id: string;
+  handle: string;
+  title: string;
+  image?: Img | null;
+  tagline?: {value: string} | null;
+  products: {nodes: Array<{featuredImage?: Img | null}>};
+};
 
 /**
- * "Products" disclosure menu listing the collections chosen in Shopify
- * (Content → Metaobjects → Product feed → Collections). Opens on click/tap,
- * closes on Esc, outside click or navigation.
+ * "Products" opens a full-page menu (in the spirit of maison-alaia.com):
+ * collection names set large on the left, the hovered collection's image on
+ * the right. Collections and their order come from Shopify
+ * (Content → Metaobjects → Product feed → Collections).
  */
 export function CollectionsMenu({collections}: {collections: NavCollection[]}) {
   const t = useT();
   const to = useLocalePath();
-  const id = useId();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const wrap = useRef<HTMLDivElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-  const active = new URLSearchParams(location.search).get('collection');
+  const [active, setActive] = useState(0);
+  const ref = useRef<HTMLDialogElement>(null);
+  const current = new URLSearchParams(location.search).get('collection');
   const onProducts = location.pathname.replace(/^\/[a-z]{2}(?=\/)/, '').startsWith('/products');
 
   useEffect(() => setOpen(false), [location.pathname, location.search]);
 
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false);
-        button.current?.focus();
-      }
-    };
-    const onClick = (e: MouseEvent) => {
-      if (!wrap.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('click', onClick);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('click', onClick);
-    };
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) {
+      d.showModal();
+      document.documentElement.classList.add('has-dialog');
+    } else if (!open && d.open) {
+      d.close();
+    }
+    if (!open) document.documentElement.classList.remove('has-dialog');
   }, [open]);
 
+  const imageOf = (c: NavCollection) => c.image ?? c.products.nodes[0]?.featuredImage ?? null;
+
   return (
-    <div className="menu" ref={wrap}>
+    <>
       <button
-        ref={button}
         type="button"
         className={`nav-link${onProducts ? ' active' : ''}`}
+        aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls={`${id}-menu`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
       >
         {t('nav.products')}
-        <svg aria-hidden="true" viewBox="0 0 12 12" width="9" height="9" className="menu__chevron">
-          <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.3" />
-        </svg>
       </button>
-      <div id={`${id}-menu`} className="menu__panel glass" hidden={!open}>
-        <p className="menu__label">{t('nav.collections')}</p>
-        <ul>
-          {collections.map((c) => (
-            <li key={c.id}>
-              <Link
-                to={`${to('/products')}?collection=${c.handle}`}
-                className="menu__link"
-                aria-current={active === c.handle ? 'page' : undefined}
-                viewTransition
-              >
-                {c.title}
-              </Link>
-            </li>
-          ))}
-          <li>
-            <Link to={to('/products')} className="menu__link menu__link--all" aria-current={onProducts && !active ? 'page' : undefined} viewTransition>
+
+      <dialog ref={ref} className="navlay" aria-label={t('nav.collections')} onClose={() => setOpen(false)}>
+        <div className="navlay__inner">
+          <div className="navlay__top">
+            <p className="navlay__label">{t('nav.collections')}</p>
+            <button type="button" className="button navlay__close" onClick={() => setOpen(false)}>
+              {t('a11y.close')}
+            </button>
+          </div>
+
+          <nav className="navlay__list" aria-label={t('nav.collections')}>
+            <ol>
+              {collections.map((c, i) => (
+                <li key={c.id} style={{'--i': i} as React.CSSProperties}>
+                  <Link
+                    to={`${to('/products')}?collection=${c.handle}`}
+                    className="navlay__link"
+                    aria-current={current === c.handle ? 'page' : undefined}
+                    onPointerEnter={() => setActive(i)}
+                    onFocus={() => setActive(i)}
+                    viewTransition
+                  >
+                    <span className="navlay__no" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="navlay__name">{c.title}</span>
+                    {c.tagline?.value && <span className="navlay__tagline">{c.tagline.value}</span>}
+                  </Link>
+                </li>
+              ))}
+            </ol>
+            <Link
+              to={to('/products')}
+              className="navlay__all text-link text-link--arrow"
+              aria-current={onProducts && !current ? 'page' : undefined}
+              viewTransition
+            >
               {t('nav.allPieces')}
             </Link>
-          </li>
-        </ul>
-      </div>
-    </div>
+          </nav>
+
+          <div className="navlay__visual" aria-hidden="true">
+            {collections.map((c, i) => {
+              const img = imageOf(c);
+              return img ? (
+                <div key={c.id} className={`navlay__img grain${i === active ? ' is-active' : ''}`}>
+                  <Image data={img} alt="" sizes="45vw" loading="lazy" />
+                </div>
+              ) : null;
+            })}
+          </div>
+        </div>
+      </dialog>
+    </>
   );
 }

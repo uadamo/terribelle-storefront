@@ -191,6 +191,25 @@ export const SHOP_QUERY = `#graphql
               id
               handle
               title
+              image {
+                url
+                altText
+                width
+                height
+              }
+              tagline: metafield(namespace: "custom", key: "tagline") {
+                value
+              }
+              products(first: 1) {
+                nodes {
+                  featuredImage {
+                    url
+                    altText
+                    width
+                    height
+                  }
+                }
+              }
             }
           }
         }

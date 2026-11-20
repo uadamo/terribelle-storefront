@@ -23,7 +23,7 @@ On a normal machine, skip the relay and use the real domain and token.
 ## Architecture
 
 - **Routes** (`app/routes`, all under the optional `($locale)` prefix — `/fr/...`):
-  `/` home (film-poster campaign hero + "Gazette") · `/products` (`?collection=<handle>`, filters `type`, `fit`, `color`, `available`)
+  `/` home (film-poster campaign hero + magazine spreads) · `/products` (`?collection=<handle>`, filters `type`, `fit`, `color`, `available`)
   · `/products/:handle` (full page) · `/cart` · `/legal/:handle` (privacy | orders | accessibility).
 - **Product overlay**: any page with `?product=<handle>` shows the piece in an overlay (`ProductOverlay`, data from the
   product route loader via fetcher). Use `<ProductLink>` for product links — real href, overlay on plain click.
@@ -33,9 +33,9 @@ On a normal machine, skip the relay and use the real domain and token.
   HS code / origin / weight live on variant inventory items (internal only).
 - **Campaigns**: metaobject `campaign` (presenter, title, credits, collection, video, poster, cta_label);
   the home hero shows `product_feed.campaign`. Collection metafield `custom.promo_videos` = silent video strips between
-  product rows; `custom.tagline` under the title. Menu collections = `product_feed.collections`. Seed: `npm run seed:campaigns`.
+  product rows; `custom.tagline` under the title. Menu collections = `product_feed.collections` (full-page menu, `CollectionsMenu`). Seed: `npm run seed:campaigns`.
 - **Media treatment**: `.grain` on photo wrappers (film grain that fades on hover); `<AutoVideo>` for silent videos
-  (pauses off-screen, still image for reduced motion, pause button for WCAG 2.2.2). Buttons are frosted glass (`.button`, `.glass`).
+  (pauses off-screen, still image for reduced motion, pause button for WCAG 2.2.2). Buttons are borderless, transparent frosted glass (`.button`, `.glass`); no vertical rules; type is Imbue + Questrial only.
 - **Made to measure**: measurements are cart line attributes (`"Bust (cm)": "88"`), visible in checkout and the order.
 - **i18n**: `app/lib/i18n.ts` + `app/i18n/{en,fr}.ts`. Use `useT()` for strings and `useLocalePath()` for links.
 - **Site settings** (email, TikTok, carriers, measurement ranges): `app/lib/site.ts`. Legal drafts: `app/content/legal.tsx`.

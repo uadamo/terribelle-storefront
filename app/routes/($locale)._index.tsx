@@ -3,7 +3,7 @@ import {Image, Money} from '@shopify/hydrogen';
 import type {Route} from './+types/($locale)._index';
 import type {ProductCardFragment, VideoMediaFragment} from 'storefrontapi.generated';
 import {PRODUCT_CARD_FRAGMENT, VIDEO_FRAGMENT} from '~/lib/fragments';
-import {useLocale, useLocalePath, useT} from '~/lib/i18n';
+import {useLocalePath, useT} from '~/lib/i18n';
 import {Reveal} from '~/components/Reveal';
 import {AutoVideo} from '~/components/AutoVideo';
 import {ProductLink} from '~/components/ProductLink';
@@ -68,13 +68,13 @@ export default function Home() {
   return (
     <div className="home">
       <Poster campaign={campaign} fallbackImage={fallbackImage} />
-      <Gazette stories={stories} collectionTitle={campaign?.collection?.title ?? null} collectionHandle={campaign?.collection?.handle ?? null} />
+      <Magazine stories={stories} collectionTitle={campaign?.collection?.title ?? null} collectionHandle={campaign?.collection?.handle ?? null} />
       <MadeToMeasure product={bespoke} />
     </div>
   );
 }
 
-/** Opening screen composed like a film poster: credits, campaign video, script title. */
+/** Opening screen composed like a film poster: credits, campaign video, title. */
 function Poster({
   campaign,
   fallbackImage,
@@ -91,15 +91,13 @@ function Poster({
 
   return (
     <section className="poster" aria-labelledby="poster-title" data-theme="dark">
-      <div className="poster__media grain grain--still" aria-hidden="true">
+      <div className="poster__media grain grain--still">
         {campaign?.video ? (
           <AutoVideo video={campaign.video} className="poster__video" maxHeight={1080} eager />
         ) : (
           still && <Image data={still} alt="" sizes="100vw" loading="eager" className="poster__img" />
         )}
       </div>
-      <span className="poster__rule poster__rule--left" aria-hidden="true" />
-      <span className="poster__rule poster__rule--right" aria-hidden="true" />
 
       <p className="poster__presents">{presenter}</p>
 
@@ -115,7 +113,7 @@ function Poster({
           <span className="sr-only">{presenter} — </span>
           {title}
         </h1>
-        <Link to={href} className="button glass glass--dark poster__cta" viewTransition>
+        <Link to={href} className="button poster__cta" viewTransition>
           {campaign?.ctaLabel || t('hero.explore')}
         </Link>
       </div>
@@ -123,13 +121,10 @@ function Poster({
   );
 }
 
-const firstSentence = (text: string) => {
-  const [first, ...rest] = text.split(/(?<=[.!?])\s+/);
-  return {first: first ?? '', rest: rest.join(' ')};
-};
+const firstSentence = (text: string) => text.split(/(?<=[.!?])\s+/)[0] ?? '';
 
-/** The collection laid out like a newspaper page: headlines, decks and photo captions. */
-function Gazette({
+/** The collection presented like fashion-magazine spreads. */
+function Magazine({
   stories,
   collectionTitle,
   collectionHandle,
@@ -140,43 +135,27 @@ function Gazette({
 }) {
   const t = useT();
   const to = useLocalePath();
-  const {lang} = useLocale();
   if (!stories.length) return null;
-  const [lead, ...others] = stories;
-  const secondary = others.slice(0, 3);
-  const closing = others[3];
-  const date = new Intl.DateTimeFormat(lang, {month: 'long', year: 'numeric'}).format(new Date());
+  const [cover, left, right, feature, closing] = stories;
 
   return (
-    <section className="gazette" aria-labelledby="gazette-title">
-      <header className="gazette__masthead">
-        <p className="gazette__meta">{collectionTitle ?? t('gazette.edition')}</p>
-        <h2 id="gazette-title" className="gazette__name">
-          {t('gazette.title')}
-        </h2>
-        <p className="gazette__meta gazette__meta--right">{date}</p>
-      </header>
-
-      <Story product={lead} n={1} variant="lead" />
-
-      {secondary.length > 0 && (
-        <div className="gazette__columns">
-          {secondary.map((p, i) => (
-            <Story key={p.id} product={p} n={i + 2} variant="column" />
-          ))}
+    <section className="mag" aria-labelledby="mag-title">
+      <h2 id="mag-title" className="sr-only">
+        {collectionTitle ?? t('home.eyebrow')}
+      </h2>
+      <Spread product={cover} n={1} layout="cover" />
+      {(left || right) && (
+        <div className="mag__pair">
+          {left && <Spread product={left} n={2} layout="tall" />}
+          {right && <Spread product={right} n={3} layout="offset" />}
         </div>
       )}
-
-      <Reveal as="blockquote" className="gazette__quote">
-        <p>{t('gazette.quote')}</p>
-      </Reveal>
-
-      {closing && <Story product={closing} n={5} variant="wide" />}
-
-      <p className="gazette__more">
+      {feature && <Spread product={feature} n={4} layout="feature" />}
+      {closing && <Spread product={closing} n={5} layout="cover" />}
+      <p className="mag__more">
         <Link
           to={collectionHandle ? `${to('/products')}?collection=${collectionHandle}` : to('/products')}
-          className="button glass"
+          className="button"
           viewTransition
         >
           {t('gazette.more')}
@@ -186,48 +165,37 @@ function Gazette({
   );
 }
 
-function Story({product, n, variant}: {product: ProductCardFragment; n: number; variant: 'lead' | 'column' | 'wide'}) {
+function Spread({product, n, layout}: {product: ProductCardFragment; n: number; layout: 'cover' | 'tall' | 'offset' | 'feature'}) {
   const t = useT();
-  const img = product.images.nodes[0];
+  const img = layout === 'feature' ? product.images.nodes[1] ?? product.images.nodes[0] : product.images.nodes[0];
   const bespoke = product.bespoke?.value === 'true';
-  const {first, rest} = firstSentence(product.description);
   const kicker = [product.productType, bespoke ? t('product.bespoke') : null].filter(Boolean).join(' · ');
-  const Headline = variant === 'lead' ? 'h3' : 'h3';
 
   return (
-    <Reveal as="article" className={`story story--${variant}`}>
-      <figure className="story__figure">
-        <ProductLink handle={product.handle} className="story__media grain" tabIndex={-1} aria-hidden="true">
-          {img && (
-            <Image
-              data={img}
-              alt=""
-              sizes={variant === 'lead' ? '(min-width: 64em) 58vw, 100vw' : variant === 'wide' ? '(min-width: 64em) 50vw, 100vw' : '(min-width: 64em) 30vw, 100vw'}
-              loading="lazy"
-              aspectRatio={variant === 'wide' ? '3/2' : '4/5'}
-            />
-          )}
-        </ProductLink>
-        <figcaption className="story__caption">
-          <span className="story__fig">{t('gazette.fig', {n})}</span> {img?.altText ? `${img.altText}. ` : ''}
-          {first}
-        </figcaption>
-      </figure>
-      <div className="story__text">
-        {kicker && <p className="story__kicker">{kicker}</p>}
-        <Headline className="story__headline">
-          <ProductLink handle={product.handle}>{product.title}</ProductLink>
-        </Headline>
-        {variant !== 'column' && first && <p className="story__deck">{first}</p>}
-        {variant === 'lead' && rest && <p className="story__body">{rest}</p>}
-        <p className="story__price">
-          {bespoke ? t('product.bespoke') : <Money data={product.priceRange.minVariantPrice} as="span" withoutTrailingZeros />}
-          {product.edition?.value ? <span> · {product.edition.value}</span> : null}
+    <Reveal as="article" className={`spread spread--${layout}`} data-theme={layout === 'cover' ? 'dark' : undefined}>
+      <ProductLink handle={product.handle} className="spread__media grain" tabIndex={-1} aria-hidden="true">
+        {img && (
+          <Image
+            data={img}
+            alt=""
+            sizes={layout === 'cover' ? '100vw' : layout === 'offset' ? '(min-width: 48em) 34vw, 90vw' : '(min-width: 48em) 58vw, 100vw'}
+            loading="lazy"
+          />
+        )}
+      </ProductLink>
+      <div className="spread__text">
+        <p className="spread__no" aria-hidden="true">
+          {String(n).padStart(2, '0')}
         </p>
-        <ProductLink handle={product.handle} className="text-link text-link--arrow story__cta">
-          {t('gazette.view')}
-          <span className="sr-only">: {product.title}</span>
-        </ProductLink>
+        {kicker && <p className="spread__kicker">{kicker}</p>}
+        <h3 className="spread__title">
+          <ProductLink handle={product.handle}>{product.title}</ProductLink>
+        </h3>
+        <p className="spread__caption">{firstSentence(product.description)}</p>
+        <p className="spread__meta">
+          {bespoke ? t('product.bespoke') : <Money data={product.priceRange.minVariantPrice} as="span" withoutTrailingZeros />}
+          {product.edition?.value ? <span> — {product.edition.value}</span> : null}
+        </p>
       </div>
     </Reveal>
   );

@@ -282,7 +282,26 @@ export type ShopQuery = {
   nav?: StorefrontAPI.Maybe<{
     collections?: StorefrontAPI.Maybe<{
       references?: StorefrontAPI.Maybe<{
-        nodes: Array<Pick<StorefrontAPI.Collection, 'id' | 'handle' | 'title'>>;
+        nodes: Array<
+          Pick<StorefrontAPI.Collection, 'id' | 'handle' | 'title'> & {
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+            >;
+            tagline?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Metafield, 'value'>
+            >;
+            products: {
+              nodes: Array<{
+                featuredImage?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'url' | 'altText' | 'width' | 'height'
+                  >
+                >;
+              }>;
+            };
+          }
+        >;
       }>;
     }>;
   }>;
@@ -994,7 +1013,7 @@ export type ShopAllQuery = {
 };
 
 interface GeneratedQueryTypes {
-  '#graphql\n  query Shop($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    shop {\n      id\n      name\n      description\n      paymentSettings {\n        acceptedCardBrands\n        supportedDigitalWallets\n      }\n    }\n    nav: metaobject(handle: {type: "product_feed", handle: "main"}) {\n      collections: field(key: "collections") {\n        references(first: 20) {\n          nodes {\n            ... on Collection {\n              id\n              handle\n              title\n            }\n          }\n        }\n      }\n    }\n    localization {\n      country {\n        isoCode\n        name\n        currency {\n          isoCode\n        }\n      }\n      availableCountries {\n        isoCode\n        name\n        currency {\n          isoCode\n          symbol\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query Shop($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    shop {\n      id\n      name\n      description\n      paymentSettings {\n        acceptedCardBrands\n        supportedDigitalWallets\n      }\n    }\n    nav: metaobject(handle: {type: "product_feed", handle: "main"}) {\n      collections: field(key: "collections") {\n        references(first: 20) {\n          nodes {\n            ... on Collection {\n              id\n              handle\n              title\n              image {\n                url\n                altText\n                width\n                height\n              }\n              tagline: metafield(namespace: "custom", key: "tagline") {\n                value\n              }\n              products(first: 1) {\n                nodes {\n                  featuredImage {\n                    url\n                    altText\n                    width\n                    height\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    localization {\n      country {\n        isoCode\n        name\n        currency {\n          isoCode\n        }\n      }\n      availableCountries {\n        isoCode\n        name\n        currency {\n          isoCode\n          symbol\n        }\n      }\n    }\n  }\n': {
     return: ShopQuery;
     variables: ShopQueryVariables;
   };
