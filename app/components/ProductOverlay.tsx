@@ -1,8 +1,9 @@
-import {useEffect, useRef} from 'react';
+import {useEffect} from 'react';
 import {Link, useFetcher, useLocation, useNavigate, useSearchParams} from 'react-router';
 import type {loader as productLoader} from '~/routes/($locale).products.$handle';
 import {ProductDetail} from './ProductDetail';
 import {useLocalePath, useT} from '~/lib/i18n';
+import {usePageOverlay} from '~/lib/usePageOverlay';
 
 /**
  * Product shown over the current page when the URL has ?product=<handle>.
@@ -18,7 +19,6 @@ export function ProductOverlay() {
   const to = useLocalePath();
   const t = useT();
   const fetcher = useFetcher<typeof productLoader>();
-  const ref = useRef<HTMLDialogElement>(null);
 
   // Everything except ?product= is passed through (variant options like Size=M).
   const rest = new URLSearchParams(params);
@@ -29,18 +29,6 @@ export function ProductOverlay() {
     if (handle) void fetcher.load(`${to(`/products/${handle}`)}${query ? `?${query}` : ''}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handle, query]);
-
-  useEffect(() => {
-    const d = ref.current;
-    if (!d) return;
-    if (handle && !d.open) {
-      d.showModal();
-      document.documentElement.classList.add('has-dialog');
-    } else if (!handle && d.open) {
-      d.close();
-    }
-    if (!handle) document.documentElement.classList.remove('has-dialog');
-  }, [handle]);
 
   function close() {
     if ((location.state as {overlay?: boolean} | null)?.overlay) {
@@ -54,23 +42,19 @@ export function ProductOverlay() {
   }
 
   const data = fetcher.data?.product.handle === handle ? fetcher.data : null;
+  const ref = usePageOverlay(!!handle, close);
 
   return (
-    // Backdrop click closes; Esc and the close button are the keyboard equivalents.
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
-    <dialog
-      ref={ref}
-      className="overlay"
-      aria-labelledby={data ? 'product-title' : undefined}
-      aria-label={data ? undefined : t('overlay.loading')}
-      onCancel={(e) => {
-        e.preventDefault();
-        close();
-      }}
-      onClick={(e) => {
-        if (e.target === ref.current) close();
-      }}
-    >
+    <>
+      {/* Clicking outside the panel closes it; Esc and the close button are the keyboard equivalents. */}
+      {handle && <div className="overlay-backdrop" onClick={close} aria-hidden="true" />}
+      <dialog
+        ref={ref}
+        className="overlay"
+        tabIndex={-1}
+        aria-labelledby={data ? 'product-title' : undefined}
+        aria-label={data ? undefined : t('overlay.loading')}
+      >
       <div className="overlay__panel">
         <div className="overlay__bar">
           {handle && (
@@ -78,7 +62,7 @@ export function ProductOverlay() {
               {t('overlay.fullPage')}
             </Link>
           )}
-          <button type="button" className="icon-button glass" onClick={close} aria-label={t('a11y.close')}>
+          <button type="button" className="icon-button glass" onClick={close} aria-label={t('a11y.close')} data-autofocus>
             <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
               <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="1.5" />
             </svg>
@@ -94,6 +78,7 @@ export function ProductOverlay() {
           )
         )}
       </div>
-    </dialog>
+      </dialog>
+    </>
   );
 }

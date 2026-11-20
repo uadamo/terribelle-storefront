@@ -7,6 +7,10 @@ import {useLocalePath, useT} from '~/lib/i18n';
 import {Reveal} from '~/components/Reveal';
 import {AutoVideo} from '~/components/AutoVideo';
 import {ProductLink} from '~/components/ProductLink';
+import {Logo} from '~/components/Logo';
+import {ParallaxImage} from '~/components/ParallaxImage';
+import {FloatingPins} from '~/components/three/FloatingPins';
+import {FloatingButtons} from '~/components/three/FloatingButtons';
 
 export const meta: Route.MetaFunction = ({data}) => [
   {title: data?.campaign ? `${data.campaign.title} — Terribelle Couture` : 'Terribelle Couture — made to measure'},
@@ -74,7 +78,9 @@ export default function Home() {
   );
 }
 
-/** Opening screen composed like a film poster: credits, campaign video, title. */
+const BRAND = /^\s*terribelle\s+couture\b/i;
+
+/** Opening screen composed like a film poster: campaign video, logo "presents", title. */
 function Poster({
   campaign,
   fallbackImage,
@@ -88,6 +94,9 @@ function Poster({
   const title = campaign?.title || campaign?.collection?.title || 'Terribelle';
   const href = campaign?.collection ? `${to('/products')}?collection=${campaign.collection.handle}` : to('/products');
   const still = campaign?.poster ?? fallbackImage;
+  // "Terribelle Couture presents" → the brand is drawn with the real logo lockup.
+  const brand = BRAND.test(presenter);
+  const rest = presenter.replace(BRAND, '').trim();
 
   return (
     <section className="poster" aria-labelledby="poster-title" data-theme="dark">
@@ -99,18 +108,18 @@ function Poster({
         )}
       </div>
 
-      <p className="poster__presents">{presenter}</p>
-
       <div className="poster__bottom">
-        {campaign && campaign.credits.length > 0 && (
-          <ul className="poster__credits">
-            {campaign.credits.map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
-        )}
+        <p className="poster__presents">
+          {brand ? (
+            <>
+              <Logo variant="lockup" className="poster__logo" title="Terribelle Couture" />
+              {rest && <span className="poster__presents-word">{rest}</span>}
+            </>
+          ) : (
+            presenter
+          )}
+        </p>
         <h1 id="poster-title" className="poster__title">
-          <span className="sr-only">{presenter} — </span>
           {title}
         </h1>
         <Link to={href} className="button poster__cta" viewTransition>
@@ -141,7 +150,7 @@ function Magazine({
   return (
     <section className="mag" aria-labelledby="mag-title">
       <h2 id="mag-title" className="sr-only">
-        {collectionTitle ?? t('home.eyebrow')}
+        {collectionTitle ? `${t('home.eyebrow')} — ${collectionTitle}` : t('home.eyebrow')}
       </h2>
       <Spread product={cover} n={1} layout="cover" />
       {(left || right) && (
@@ -165,6 +174,9 @@ function Magazine({
   );
 }
 
+/** How far each image drifts inside its frame (percent; negative = against the scroll). */
+const PARALLAX = {cover: 10, tall: 7, offset: -9, feature: 8} as const;
+
 function Spread({product, n, layout}: {product: ProductCardFragment; n: number; layout: 'cover' | 'tall' | 'offset' | 'feature'}) {
   const t = useT();
   const img = layout === 'feature' ? product.images.nodes[1] ?? product.images.nodes[0] : product.images.nodes[0];
@@ -175,11 +187,10 @@ function Spread({product, n, layout}: {product: ProductCardFragment; n: number; 
     <Reveal as="article" className={`spread spread--${layout}`} data-theme={layout === 'cover' ? 'dark' : undefined}>
       <ProductLink handle={product.handle} className="spread__media grain" tabIndex={-1} aria-hidden="true">
         {img && (
-          <Image
-            data={img}
-            alt=""
+          <ParallaxImage
+            image={img}
+            strength={PARALLAX[layout]}
             sizes={layout === 'cover' ? '100vw' : layout === 'offset' ? '(min-width: 48em) 34vw, 90vw' : '(min-width: 48em) 58vw, 100vw'}
-            loading="lazy"
           />
         )}
       </ProductLink>
@@ -208,41 +219,38 @@ function MadeToMeasure({product}: {product: ProductCardFragment | null}) {
   const steps = ['mtmSection.step1', 'mtmSection.step2', 'mtmSection.step3', 'mtmSection.step4'] as const;
 
   return (
-    <section className="bespoke" aria-labelledby="bespoke-title">
-      <p className="bespoke__side bespoke__side--left" aria-hidden="true">
-        {t('mtmSection.side')}
-      </p>
-      <p className="bespoke__side bespoke__side--right" aria-hidden="true">
-        {t('mtmSection.ghost')}
-      </p>
+    <section className="atelier-feature" aria-labelledby="bespoke-title">
+      {/* Decorative: dressmaker's pins drift behind the page, a few buttons in front. */}
+      <FloatingPins count={9} className="atelier-feature__pins" />
+      <FloatingButtons count={6} className="atelier-feature__buttons" />
 
-      <Reveal className="bespoke__inner">
-        <p className="label">{t('mtmSection.eyebrow')}</p>
-        <h2 id="bespoke-title" className="bespoke__title">
-          <span className="bespoke__title-sm">{t('mtmSection.titleSmall')}</span>
-          <span className="bespoke__title-lg">{t('mtmSection.titleLarge')}</span>
+      <Reveal className="atelier-feature__head">
+        <p className="spread__kicker">{t('mtmSection.eyebrow')}</p>
+        <h2 id="bespoke-title" className="atelier-feature__title">
+          <span className="atelier-feature__title-sm">{t('mtmSection.titleSmall')}</span>
+          <span className="atelier-feature__title-lg">{t('mtmSection.titleLarge')}</span>
         </h2>
-        {img && (
-          <div className="bespoke__img zoom grain">
-            <Image data={img} alt="" sizes="(min-width: 48em) 18rem, 60vw" loading="lazy" aspectRatio="4/5" />
-          </div>
-        )}
-        <p className="bespoke__body">{t('mtmSection.body')}</p>
-        <ol className="bespoke__steps">
+      </Reveal>
+
+      {img && (
+        <div className="atelier-feature__media grain">
+          <ParallaxImage image={img} strength={9} sizes="(min-width: 48em) 46vw, 100vw" />
+        </div>
+      )}
+
+      <Reveal className="atelier-feature__text">
+        <p className="atelier-feature__lede">{t('mtmSection.body')}</p>
+        <ol className="atelier-feature__steps">
           {steps.map((key, i) => (
             <li key={key}>
-              <span className="bespoke__n" aria-hidden="true">
+              <span className="atelier-feature__n" aria-hidden="true">
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span>{t(key)}</span>
             </li>
           ))}
         </ol>
-        <Link
-          to={`${to('/products')}?collection=made-to-measure`}
-          className="button"
-          viewTransition
-        >
+        <Link to={`${to('/products')}?collection=made-to-measure`} className="button" viewTransition>
           {t('mtmSection.cta')}
         </Link>
       </Reveal>

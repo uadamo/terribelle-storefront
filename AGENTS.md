@@ -27,6 +27,8 @@ On a normal machine, skip the relay and use the real domain and token.
   · `/products/:handle` (full page) · `/cart` · `/legal/:handle` (privacy | orders | accessibility).
 - **Product overlay**: any page with `?product=<handle>` shows the piece in an overlay (`ProductOverlay`, data from the
   product route loader via fetcher). Use `<ProductLink>` for product links — real href, overlay on plain click.
+  Overlays (product, full-page menu) are non-modal panels *below* the header (`usePageOverlay`: main/footer inert, Esc closes).
+  Product pages end with "More from the collection" (`RelatedRail`, vertical scroll-snap).
   `/localization` (POST) sets the country cookie and language.
 - **Data model** (see `scripts/seed/README.md`): product metafields `custom.bespoke`, `size_type`, `composition` (JSON),
   `care_instructions`, `measurement_fields`, `production_time`, `edition`; metaobject `product_feed` (handle `main`).
@@ -34,6 +36,8 @@ On a normal machine, skip the relay and use the real domain and token.
 - **Campaigns**: metaobject `campaign` (presenter, title, credits, collection, video, poster, cta_label);
   the home hero shows `product_feed.campaign`. Collection metafield `custom.promo_videos` = silent video strips between
   product rows; `custom.tagline` under the title. Menu collections = `product_feed.collections` (full-page menu, `CollectionsMenu`). Seed: `npm run seed:campaigns`.
+- **Motion**: `ParallaxImage` (react-scroll-parallax, off for reduced motion); decorative Three.js scenes in
+  `app/components/three` (lazy-loaded, paused off-screen, single frame for reduced motion).
 - **Media treatment**: `.grain` on photo wrappers (film grain that fades on hover); `<AutoVideo>` for silent videos
   (pauses off-screen, still image for reduced motion, pause button for WCAG 2.2.2). Buttons are borderless, transparent frosted glass (`.button`, `.glass`); no vertical rules; type is Imbue + Questrial only.
 - **Made to measure**: measurements are cart line attributes (`"Bust (cm)": "88"`), visible in checkout and the order.

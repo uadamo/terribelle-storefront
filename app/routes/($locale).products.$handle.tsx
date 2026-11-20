@@ -3,6 +3,7 @@ import type {Route} from './+types/($locale).products.$handle';
 import {getSelectedProductOptions} from '@shopify/hydrogen';
 import {ProductDetail, type Composition} from '~/components/ProductDetail';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
 
 export const meta: Route.MetaFunction = ({data}) => [
   {title: `${data?.product.seo.title ?? data?.product.title ?? ''} — Terribelle`},
@@ -15,9 +16,12 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {storefront} = context;
   if (!handle) throw new Error('Expected product handle to be defined');
 
-  const {product} = await storefront.query(PRODUCT_QUERY, {
-    variables: {handle, selectedOptions: getSelectedProductOptions(request)},
-  });
+  const [{product}, more] = await Promise.all([
+    storefront.query(PRODUCT_QUERY, {
+      variables: {handle, selectedOptions: getSelectedProductOptions(request)},
+    }),
+    storefront.query(RELATED_QUERY, {variables: {handle}, cache: storefront.CacheShort()}).catch(() => null),
+  ]);
   if (!product?.id) throw new Response(null, {status: 404});
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
@@ -38,7 +42,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     measurementFields = [];
   }
 
-  return {product, composition, measurementFields};
+  // "More from the collection": prefer the fashion collections shown in the menu.
+  const menu = new Set(
+    (more?.feed?.collections?.references?.nodes ?? []).flatMap((n) => ('handle' in n ? [n.handle] : [])),
+  );
+  const candidates = more?.product?.collections.nodes ?? [];
+  const source = candidates.find((c) => menu.has(c.handle)) ?? candidates[0] ?? null;
+  const relatedProducts = (source?.products.nodes ?? []).filter((p) => p.handle !== handle).slice(0, 12);
+  const related = source && relatedProducts.length ? {handle: source.handle, title: source.title, products: relatedProducts} : null;
+
+  return {product, composition, measurementFields, related};
 }
 
 export default function Product() {
@@ -116,4 +129,35 @@ const PRODUCT_QUERY = `#graphql
     }
   }
   ${PRODUCT_FRAGMENT}
+` as const;
+
+const RELATED_QUERY = `#graphql
+  query ProductRelated($handle: String!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    product(handle: $handle) {
+      collections(first: 10) {
+        nodes {
+          handle
+          title
+          products(first: 13) {
+            nodes {
+              ...ProductCard
+            }
+          }
+        }
+      }
+    }
+    feed: metaobject(handle: {type: "product_feed", handle: "main"}) {
+      collections: field(key: "collections") {
+        references(first: 20) {
+          nodes {
+            ... on Collection {
+              handle
+            }
+          }
+        }
+      }
+    }
+  }
+  ${PRODUCT_CARD_FRAGMENT}
 ` as const;

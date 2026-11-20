@@ -1,7 +1,9 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
+import {createPortal} from 'react-dom';
 import {Link, useLocation} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {useLocalePath, useT} from '~/lib/i18n';
+import {usePageOverlay} from '~/lib/usePageOverlay';
 
 type Img = {url: string; altText?: string | null; width?: number | null; height?: number | null};
 export type NavCollection = {
@@ -25,23 +27,15 @@ export function CollectionsMenu({collections}: {collections: NavCollection[]}) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const ref = useRef<HTMLDialogElement>(null);
+  const ref = usePageOverlay(open, () => setOpen(false));
   const current = new URLSearchParams(location.search).get('collection');
   const onProducts = location.pathname.replace(/^\/[a-z]{2}(?=\/)/, '').startsWith('/products');
 
   useEffect(() => setOpen(false), [location.pathname, location.search]);
 
-  useEffect(() => {
-    const d = ref.current;
-    if (!d) return;
-    if (open && !d.open) {
-      d.showModal();
-      document.documentElement.classList.add('has-dialog');
-    } else if (!open && d.open) {
-      d.close();
-    }
-    if (!open) document.documentElement.classList.remove('has-dialog');
-  }, [open]);
+  // The panel is portalled to <body> so it stacks *below* the header (it's rendered from inside it).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const imageOf = (c: NavCollection) => c.image ?? c.products.nodes[0]?.featuredImage ?? null;
 
@@ -52,16 +46,18 @@ export function CollectionsMenu({collections}: {collections: NavCollection[]}) {
         className={`nav-link${onProducts ? ' active' : ''}`}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen((o) => !o)}
       >
         {t('nav.products')}
       </button>
 
-      <dialog ref={ref} className="navlay" aria-label={t('nav.collections')} onClose={() => setOpen(false)}>
+{mounted &&
+        createPortal(
+      <dialog ref={ref} className="navlay" tabIndex={-1} aria-label={t('nav.collections')}>
         <div className="navlay__inner">
           <div className="navlay__top">
             <p className="navlay__label">{t('nav.collections')}</p>
-            <button type="button" className="button navlay__close" onClick={() => setOpen(false)}>
+            <button type="button" className="button navlay__close" onClick={() => setOpen(false)} data-autofocus>
               {t('a11y.close')}
             </button>
           </div>
@@ -108,7 +104,9 @@ export function CollectionsMenu({collections}: {collections: NavCollection[]}) {
             })}
           </div>
         </div>
-      </dialog>
+      </dialog>,
+          document.body,
+        )}
     </>
   );
 }

@@ -2,6 +2,11 @@ import type {Dictionary} from './en';
 
 export const fr: Dictionary = {
   'brand.name': 'Terribelle',
+  'related.kicker': 'Dans la même collection',
+  'related.view': 'Voir la collection',
+  'related.hint': 'Faire défiler',
+  'related.prev': 'Pièce précédente',
+  'related.next': 'Pièce suivante',
   'video.play': 'Lire la vidéo',
   'video.pause': 'Mettre la vidéo en pause',
   'hero.presents': 'Terribelle Couture présente',

@@ -1,6 +1,11 @@
 export const en = {
   // Global
   'brand.name': 'Terribelle',
+  'related.kicker': 'More from the collection',
+  'related.view': 'View the collection',
+  'related.hint': 'Scroll',
+  'related.prev': 'Previous piece',
+  'related.next': 'Next piece',
   'video.play': 'Play video',
   'video.pause': 'Pause video',
   'hero.presents': 'Terribelle Couture presents',

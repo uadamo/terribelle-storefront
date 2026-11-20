@@ -13,9 +13,15 @@ import {ProductForm} from '~/components/ProductForm';
 import {useUI} from '~/components/UIProvider';
 import {useLocale, useT} from '~/lib/i18n';
 import {gloss} from '~/i18n/glossary';
+import {RelatedRail, type Related} from './RelatedRail';
 
 export type Composition = Array<{part?: string; fibres: Record<string, number>}>;
-export type ProductData = {product: ProductFragment; composition: Composition; measurementFields: string[]};
+export type ProductData = {
+  product: ProductFragment;
+  composition: Composition;
+  measurementFields: string[];
+  related?: Related | null;
+};
 
 /**
  * Product layout shared by the full product page and the shopping overlay.
@@ -39,6 +45,7 @@ export function ProductDetail({data, variant = 'page'}: {data: ProductData; vari
   const care = (product.care?.value ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
 
   return (
+    <>
     <div className={`pdp pdp--${variant}`}>
       <Gallery product={product} />
 
@@ -170,6 +177,8 @@ export function ProductDetail({data, variant = 'page'}: {data: ProductData; vari
         }}
       />
     </div>
+    <RelatedRail related={data.related ?? null} />
+    </>
   );
 }
 

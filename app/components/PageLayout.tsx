@@ -1,3 +1,5 @@
+import {useEffect, useState} from 'react';
+import {ParallaxProvider} from 'react-scroll-parallax';
 import type {CartApiQueryFragment, ShopQuery} from 'storefrontapi.generated';
 import {Header} from './Header';
 import {Footer} from './Footer';
@@ -19,7 +21,12 @@ export function PageLayout({
   nav: ShopQuery['nav'];
   [key: string]: unknown;
 }) {
+  // Parallax off for visitors who ask their device for reduced motion.
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches), []);
+
   return (
+    <ParallaxProvider isDisabled={reduced}>
     <UIProvider>
       <Header cart={cart} collections={(nav?.collections?.references?.nodes ?? []).filter((n): n is NavCollection => 'handle' in n)} />
       <main id="main" tabIndex={-1}>
@@ -28,5 +35,6 @@ export function PageLayout({
       <Footer shop={shopInfo} localization={localization} />
       <ProductOverlay />
     </UIProvider>
+    </ParallaxProvider>
   );
 }
