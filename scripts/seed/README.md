@@ -28,3 +28,8 @@ Existing items (matched by handle/key) are skipped, so re-running is safe.
 Creates the **European Union** (EUR, VAT-inclusive prices) and **Canada** (CAD) markets, enables and
 publishes **French**, and registers French translations from `translations-fr.mjs` for products,
 options, product metafields, collections and the product feed.
+
+## Featured campaign
+
+`node scripts/seed/featured-field.mjs <campaign-handle>` adds the **Featured on home page** switch to campaigns and
+turns it on for one campaign. In Shopify admin: Content → Metaobjects → Campaign → toggle **Featured on home page**.

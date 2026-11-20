@@ -36,7 +36,10 @@ const isProduct = (n: unknown): n is ProductCardFragment => !!n && typeof n === 
 export async function loader({context}: Route.LoaderArgs) {
   const {storefront} = context;
   const data = await storefront.query(HOME_QUERY, {cache: storefront.CacheShort()});
-  const c = data.feed?.campaign?.reference;
+  // The campaign switched to "Featured" in Shopify wins (newest first); otherwise
+  // Product feed → Featured campaign.
+  const flagged = data.campaigns.nodes.find((m) => m.featured?.value === 'true');
+  const c = flagged ?? data.feed?.campaign?.reference;
   let campaign: Campaign | null = null;
   let collectionProducts: ProductCardFragment[] = [];
   if (c && 'title' in c) {
@@ -62,7 +65,7 @@ export async function loader({context}: Route.LoaderArgs) {
   }
   const featured = (data.feed?.featured?.references?.nodes ?? []).filter(isProduct);
   const all = data.products.nodes;
-  const stories = (collectionProducts.length ? collectionProducts : featured.length ? featured : all).slice(0, 5);
+  const stories = (collectionProducts.length ? collectionProducts : featured.length ? featured : all).slice(0, 4);
   const bespoke = all.find((p) => p.bespoke?.value === 'true') ?? all[0] ?? null;
   return {campaign, stories, bespoke, fallbackImage: (stories[0] ?? all[0])?.images.nodes[0] ?? null};
 }
@@ -145,22 +148,21 @@ function Magazine({
   const t = useT();
   const to = useLocalePath();
   if (!stories.length) return null;
-  const [cover, left, right, feature, closing] = stories;
+  const [first, second, third, fourth] = stories;
 
   return (
     <section className="mag" aria-labelledby="mag-title">
       <h2 id="mag-title" className="sr-only">
         {collectionTitle ? `${t('home.eyebrow')} — ${collectionTitle}` : t('home.eyebrow')}
       </h2>
-      <Spread product={cover} n={1} layout="cover" />
-      {(left || right) && (
+      {(first || second) && (
         <div className="mag__pair">
-          {left && <Spread product={left} n={2} layout="tall" />}
-          {right && <Spread product={right} n={3} layout="offset" />}
+          {first && <Spread product={first} n={1} layout="tall" />}
+          {second && <Spread product={second} n={2} layout="offset" />}
         </div>
       )}
-      {feature && <Spread product={feature} n={4} layout="feature" />}
-      {closing && <Spread product={closing} n={5} layout="cover" />}
+      {third && <Spread product={third} n={3} layout="feature" />}
+      {fourth && <Spread product={fourth} n={4} layout="feature-reverse" />}
       <p className="mag__more">
         <Link
           to={collectionHandle ? `${to('/products')}?collection=${collectionHandle}` : to('/products')}
@@ -175,22 +177,22 @@ function Magazine({
 }
 
 /** How far each image drifts inside its frame (percent; negative = against the scroll). */
-const PARALLAX = {cover: 10, tall: 7, offset: -9, feature: 8} as const;
+const PARALLAX = {tall: 7, offset: -9, feature: 8, 'feature-reverse': -7} as const;
 
-function Spread({product, n, layout}: {product: ProductCardFragment; n: number; layout: 'cover' | 'tall' | 'offset' | 'feature'}) {
+function Spread({product, n, layout}: {product: ProductCardFragment; n: number; layout: 'tall' | 'offset' | 'feature' | 'feature-reverse'}) {
   const t = useT();
-  const img = layout === 'feature' ? product.images.nodes[1] ?? product.images.nodes[0] : product.images.nodes[0];
+  const img = layout.startsWith('feature') ? product.images.nodes[1] ?? product.images.nodes[0] : product.images.nodes[0];
   const bespoke = product.bespoke?.value === 'true';
   const kicker = [product.productType, bespoke ? t('product.bespoke') : null].filter(Boolean).join(' · ');
 
   return (
-    <Reveal as="article" className={`spread spread--${layout}`} data-theme={layout === 'cover' ? 'dark' : undefined}>
+    <Reveal as="article" className={`spread spread--${layout}`}>
       <ProductLink handle={product.handle} className="spread__media grain" tabIndex={-1} aria-hidden="true">
         {img && (
           <ParallaxImage
             image={img}
             strength={PARALLAX[layout]}
-            sizes={layout === 'cover' ? '100vw' : layout === 'offset' ? '(min-width: 48em) 34vw, 90vw' : '(min-width: 48em) 58vw, 100vw'}
+            sizes={layout === 'offset' ? '(min-width: 48em) 34vw, 90vw' : '(min-width: 48em) 58vw, 100vw'}
           />
         )}
       </ProductLink>
@@ -258,47 +260,59 @@ function MadeToMeasure({product}: {product: ProductCardFragment | null}) {
   );
 }
 
-const HOME_QUERY = `#graphql
-  query Home($country: CountryCode, $language: LanguageCode)
-  @inContext(country: $country, language: $language) {
-    feed: metaobject(handle: {type: "product_feed", handle: "main"}) {
-      campaign: field(key: "campaign") {
-        reference {
-          ... on Metaobject {
-            presenter: field(key: "presenter") { value }
-            title: field(key: "title") { value }
-            credits: field(key: "credits") { value }
-            cta: field(key: "cta_label") { value }
-            video: field(key: "video") {
-              reference {
-                ...VideoMedia
-              }
-            }
-            poster: field(key: "poster") {
-              reference {
-                ... on MediaImage {
-                  image { url altText width height }
-                }
-              }
-            }
-            collection: field(key: "collection") {
-              reference {
-                ... on Collection {
-                  handle
-                  title
-                  products(first: 6) {
-                    nodes {
-                      ...ProductCard
-                    }
-                  }
-                }
-              }
+const CAMPAIGN_FRAGMENT = `#graphql
+  fragment CampaignFields on Metaobject {
+    presenter: field(key: "presenter") { value }
+    title: field(key: "title") { value }
+    credits: field(key: "credits") { value }
+    cta: field(key: "cta_label") { value }
+    featured: field(key: "featured") { value }
+    video: field(key: "video") {
+      reference {
+        ...VideoMedia
+      }
+    }
+    poster: field(key: "poster") {
+      reference {
+        ... on MediaImage {
+          image { url altText width height }
+        }
+      }
+    }
+    collection: field(key: "collection") {
+      reference {
+        ... on Collection {
+          handle
+          title
+          products(first: 4) {
+            nodes {
+              ...ProductCard
             }
           }
         }
       }
+    }
+  }
+` as const;
+
+const HOME_QUERY = `#graphql
+  query Home($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    campaigns: metaobjects(type: "campaign", first: 20, sortKey: "updated_at", reverse: true) {
+      nodes {
+        ...CampaignFields
+      }
+    }
+    feed: metaobject(handle: {type: "product_feed", handle: "main"}) {
+      campaign: field(key: "campaign") {
+        reference {
+          ... on Metaobject {
+            ...CampaignFields
+          }
+        }
+      }
       featured: field(key: "featured_products") {
-        references(first: 6) {
+        references(first: 4) {
           nodes {
             ...ProductCard
           }
@@ -311,6 +325,7 @@ const HOME_QUERY = `#graphql
       }
     }
   }
+  ${CAMPAIGN_FRAGMENT}
   ${PRODUCT_CARD_FRAGMENT}
   ${VIDEO_FRAGMENT}
 ` as const;

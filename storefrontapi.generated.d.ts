@@ -348,12 +348,181 @@ export type VideoMediaFragment = Pick<StorefrontAPI.Video, 'id' | 'alt'> & {
   >;
 };
 
+export type CampaignFieldsFragment = {
+  presenter?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+  title?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+  credits?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+  cta?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+  featured?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+  video?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Video, 'id' | 'alt'> & {
+        sources: Array<
+          Pick<
+            StorefrontAPI.VideoSource,
+            'url' | 'mimeType' | 'width' | 'height'
+          >
+        >;
+        previewImage?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'width' | 'height' | 'altText'>
+        >;
+      }
+    >;
+  }>;
+  poster?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<{
+      image?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+      >;
+    }>;
+  }>;
+  collection?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Collection, 'handle' | 'title'> & {
+        products: {
+          nodes: Array<
+            Pick<
+              StorefrontAPI.Product,
+              | 'id'
+              | 'handle'
+              | 'title'
+              | 'productType'
+              | 'description'
+              | 'availableForSale'
+            > & {
+              options: Array<
+                Pick<StorefrontAPI.ProductOption, 'name'> & {
+                  optionValues: Array<
+                    Pick<StorefrontAPI.ProductOptionValue, 'name'>
+                  >;
+                }
+              >;
+              bespoke?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Metafield, 'value'>
+              >;
+              edition?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Metafield, 'value'>
+              >;
+              priceRange: {
+                minVariantPrice: Pick<
+                  StorefrontAPI.MoneyV2,
+                  'amount' | 'currencyCode'
+                >;
+                maxVariantPrice: Pick<
+                  StorefrontAPI.MoneyV2,
+                  'amount' | 'currencyCode'
+                >;
+              };
+              images: {
+                nodes: Array<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'id' | 'url' | 'altText' | 'width' | 'height'
+                  >
+                >;
+              };
+            }
+          >;
+        };
+      }
+    >;
+  }>;
+};
+
 export type HomeQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
 
 export type HomeQuery = {
+  campaigns: {
+    nodes: Array<{
+      presenter?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.MetaobjectField, 'value'>
+      >;
+      title?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+      credits?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.MetaobjectField, 'value'>
+      >;
+      cta?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+      featured?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.MetaobjectField, 'value'>
+      >;
+      video?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Video, 'id' | 'alt'> & {
+            sources: Array<
+              Pick<
+                StorefrontAPI.VideoSource,
+                'url' | 'mimeType' | 'width' | 'height'
+              >
+            >;
+            previewImage?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'width' | 'height' | 'altText'>
+            >;
+          }
+        >;
+      }>;
+      poster?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<{
+          image?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+          >;
+        }>;
+      }>;
+      collection?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Collection, 'handle' | 'title'> & {
+            products: {
+              nodes: Array<
+                Pick<
+                  StorefrontAPI.Product,
+                  | 'id'
+                  | 'handle'
+                  | 'title'
+                  | 'productType'
+                  | 'description'
+                  | 'availableForSale'
+                > & {
+                  options: Array<
+                    Pick<StorefrontAPI.ProductOption, 'name'> & {
+                      optionValues: Array<
+                        Pick<StorefrontAPI.ProductOptionValue, 'name'>
+                      >;
+                    }
+                  >;
+                  bespoke?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.Metafield, 'value'>
+                  >;
+                  edition?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.Metafield, 'value'>
+                  >;
+                  priceRange: {
+                    minVariantPrice: Pick<
+                      StorefrontAPI.MoneyV2,
+                      'amount' | 'currencyCode'
+                    >;
+                    maxVariantPrice: Pick<
+                      StorefrontAPI.MoneyV2,
+                      'amount' | 'currencyCode'
+                    >;
+                  };
+                  images: {
+                    nodes: Array<
+                      Pick<
+                        StorefrontAPI.Image,
+                        'id' | 'url' | 'altText' | 'width' | 'height'
+                      >
+                    >;
+                  };
+                }
+              >;
+            };
+          }
+        >;
+      }>;
+    }>;
+  };
   feed?: StorefrontAPI.Maybe<{
     campaign?: StorefrontAPI.Maybe<{
       reference?: StorefrontAPI.Maybe<{
@@ -367,6 +536,9 @@ export type HomeQuery = {
           Pick<StorefrontAPI.MetaobjectField, 'value'>
         >;
         cta?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
+        featured?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.MetaobjectField, 'value'>
+        >;
         video?: StorefrontAPI.Maybe<{
           reference?: StorefrontAPI.Maybe<
             Pick<StorefrontAPI.Video, 'id' | 'alt'> & {
@@ -1086,7 +1258,7 @@ interface GeneratedQueryTypes {
     return: ShopQuery;
     variables: ShopQueryVariables;
   };
-  '#graphql\n  query Home($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    feed: metaobject(handle: {type: "product_feed", handle: "main"}) {\n      campaign: field(key: "campaign") {\n        reference {\n          ... on Metaobject {\n            presenter: field(key: "presenter") { value }\n            title: field(key: "title") { value }\n            credits: field(key: "credits") { value }\n            cta: field(key: "cta_label") { value }\n            video: field(key: "video") {\n              reference {\n                ...VideoMedia\n              }\n            }\n            poster: field(key: "poster") {\n              reference {\n                ... on MediaImage {\n                  image { url altText width height }\n                }\n              }\n            }\n            collection: field(key: "collection") {\n              reference {\n                ... on Collection {\n                  handle\n                  title\n                  products(first: 6) {\n                    nodes {\n                      ...ProductCard\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      featured: field(key: "featured_products") {\n        references(first: 6) {\n          nodes {\n            ...ProductCard\n          }\n        }\n      }\n    }\n    products(first: 12, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...ProductCard\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    handle\n    title\n    productType\n    description\n    availableForSale\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n    bespoke: metafield(namespace: "custom", key: "bespoke") {\n      value\n    }\n    edition: metafield(namespace: "custom", key: "edition") {\n      value\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n  }\n\n  #graphql\n  fragment VideoMedia on Video {\n    id\n    alt\n    sources {\n      url\n      mimeType\n      width\n      height\n    }\n    previewImage {\n      url\n      width\n      height\n      altText\n    }\n  }\n\n': {
+  '#graphql\n  query Home($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    campaigns: metaobjects(type: "campaign", first: 20, sortKey: "updated_at", reverse: true) {\n      nodes {\n        ...CampaignFields\n      }\n    }\n    feed: metaobject(handle: {type: "product_feed", handle: "main"}) {\n      campaign: field(key: "campaign") {\n        reference {\n          ... on Metaobject {\n            ...CampaignFields\n          }\n        }\n      }\n      featured: field(key: "featured_products") {\n        references(first: 4) {\n          nodes {\n            ...ProductCard\n          }\n        }\n      }\n    }\n    products(first: 12, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...ProductCard\n      }\n    }\n  }\n  #graphql\n  fragment CampaignFields on Metaobject {\n    presenter: field(key: "presenter") { value }\n    title: field(key: "title") { value }\n    credits: field(key: "credits") { value }\n    cta: field(key: "cta_label") { value }\n    featured: field(key: "featured") { value }\n    video: field(key: "video") {\n      reference {\n        ...VideoMedia\n      }\n    }\n    poster: field(key: "poster") {\n      reference {\n        ... on MediaImage {\n          image { url altText width height }\n        }\n      }\n    }\n    collection: field(key: "collection") {\n      reference {\n        ... on Collection {\n          handle\n          title\n          products(first: 4) {\n            nodes {\n              ...ProductCard\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment ProductCard on Product {\n    id\n    handle\n    title\n    productType\n    description\n    availableForSale\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n    bespoke: metafield(namespace: "custom", key: "bespoke") {\n      value\n    }\n    edition: metafield(namespace: "custom", key: "edition") {\n      value\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    images(first: 2) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n  }\n\n  #graphql\n  fragment VideoMedia on Video {\n    id\n    alt\n    sources {\n      url\n      mimeType\n      width\n      height\n    }\n    previewImage {\n      url\n      width\n      height\n      altText\n    }\n  }\n\n': {
     return: HomeQuery;
     variables: HomeQueryVariables;
   };

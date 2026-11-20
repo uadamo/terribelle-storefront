@@ -8,8 +8,8 @@ import {ProductLink} from './ProductLink';
 export type Related = {handle: string; title: string; products: ProductCardFragment[]};
 
 /**
- * "More from the collection": a vertical rail of large images, one at a time,
- * scrolled or swiped vertically (scroll-snap). Keyboard: focus the rail and use
+ * "More from the collection": three pieces per visible row; further rows are
+ * scrolled or swiped vertically inside the rail (scroll-snap). Keyboard: focus the rail and use
  * the arrow keys, or the previous/next buttons.
  */
 export function RelatedRail({related}: {related: Related | null}) {
@@ -22,7 +22,10 @@ export function RelatedRail({related}: {related: Related | null}) {
     const el = rail.current;
     if (!el) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    el.scrollBy({top: dir * el.clientHeight, behavior: reduce ? 'auto' : 'smooth'});
+    // One row of pieces per step.
+    const item = el.querySelector<HTMLElement>('.related__item');
+    const gap = parseFloat(getComputedStyle(el).rowGap) || 0;
+    el.scrollBy({top: dir * ((item?.offsetHeight ?? el.clientHeight) + gap), behavior: reduce ? 'auto' : 'smooth'});
   };
 
   return (
@@ -35,7 +38,7 @@ export function RelatedRail({related}: {related: Related | null}) {
         <Link to={`${to('/products')}?collection=${related.handle}`} className="text-link text-link--arrow" viewTransition>
           {t('related.view')}
         </Link>
-        {related.products.length > 1 && (
+        {related.products.length > 3 && (
           <div className="related__controls">
             <button type="button" className="carousel__btn" onClick={() => step(-1)} aria-label={t('related.prev')}>
               <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 15l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="1.3" /></svg>
@@ -58,7 +61,7 @@ export function RelatedRail({related}: {related: Related | null}) {
           return (
             <li key={p.id} className="related__item">
               <ProductLink handle={p.handle} className="related__link">
-                <span className="related__media grain">{img && <Image data={img} alt="" sizes="(min-width: 64em) 34rem, 92vw" loading="lazy" />}</span>
+                <span className="related__media grain">{img && <Image data={img} alt="" sizes="(min-width: 64em) 24vw, 46vw" loading="lazy" />}</span>
                 <span className="related__caption">
                   <span className="related__name">{p.title}</span>
                   <span className="related__price">

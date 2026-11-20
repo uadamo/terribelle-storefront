@@ -14,7 +14,7 @@ type ButtonMotion = {
 };
 
 /** Floating four-hole sewing buttons (decorative). Adapted from the brand's FloatingButtons scene. */
-export function FloatingButtons({count = 6, className = ''}: {count?: number; className?: string}) {
+export function FloatingButtons({count = 6, scale = 0.6, className = ''}: {count?: number; scale?: number; className?: string}) {
   const mountRef = useThreeStage((T, mount) => {
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(46, 1, 0.1, 100);
@@ -97,6 +97,7 @@ export function FloatingButtons({count = 6, className = ''}: {count?: number; cl
 
     for (let i = 0; i < count; i += 1) {
       const button = new T.Mesh(roundGeometry, chromeMaterial);
+      button.scale.setScalar(scale);
       button.rotation.set((Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.95, (Math.random() - 0.5) * 0.45);
       scene.add(button);
       buttons.push({

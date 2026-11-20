@@ -589,7 +589,7 @@ main:focus {
 .mag {
   display: grid;
   gap: clamp(5rem, 12vw, 11rem);
-  padding-bottom: clamp(5rem, 10vw, 9rem);
+  padding: clamp(5rem, 10vw, 9rem) 0;
 }
 .spread {
   position: relative;
@@ -734,6 +734,25 @@ main:focus {
   grid-row: 1;
   aspect-ratio: 4 / 5;
 }
+.spread--feature-reverse {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: clamp(1rem, 2.5vw, 2.5rem);
+  padding: 0 var(--pad);
+  align-items: center;
+}
+.spread--feature-reverse .spread__media {
+  grid-column: 1 / span 6;
+  grid-row: 1;
+  aspect-ratio: 4 / 5;
+}
+.spread--feature-reverse .spread__text {
+  grid-column: 8 / span 5;
+  grid-row: 1;
+}
+.spread--feature-reverse .spread__title {
+  font-size: clamp(2.6rem, 6.5vw, 7rem);
+}
 .mag__more {
   display: flex;
   justify-content: center;
@@ -743,14 +762,17 @@ main:focus {
     min-height: 85svh;
   }
   .mag__pair,
-  .spread--feature {
+  .spread--feature,
+  .spread--feature-reverse {
     grid-template-columns: 1fr;
-    row-gap: 4rem;
+    row-gap: 2rem;
   }
   .spread--tall,
   .spread--offset,
   .spread--feature .spread__text,
-  .spread--feature .spread__media {
+  .spread--feature .spread__media,
+  .spread--feature-reverse .spread__text,
+  .spread--feature-reverse .spread__media {
     grid-column: 1;
     grid-row: auto;
   }
@@ -785,7 +807,8 @@ main:focus {
 /* ---------- Home: made to your measurements (magazine feature + floating notions) ---------- */
 .atelier-feature {
   position: relative;
-  overflow: hidden;
+  z-index: 2; /* lets the floating notions drift over the footer */
+  overflow: visible;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   column-gap: clamp(1rem, 2.5vw, 2.5rem);
@@ -798,20 +821,24 @@ main:focus {
   inset: 0;
   pointer-events: none;
 }
+.atelier-feature .three-layer {
+  inset: -12% 0 -16%;
+}
 .three-layer canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
 }
-.atelier-feature__pins {
-  z-index: 0;
-}
-.atelier-feature__buttons {
-  z-index: 0;
-}
 .atelier-feature > :not(.three-layer) {
   position: relative;
   z-index: 1;
+}
+/* In front of the photograph, behind the small text (which has a solid ground). */
+.atelier-feature .three-layer {
+  z-index: 2;
+}
+.atelier-feature > .atelier-feature__text {
+  z-index: 3;
 }
 .atelier-feature__head {
   grid-column: 1 / -1;
@@ -884,20 +911,20 @@ main:focus {
   }
 }
 
-/* ---------- Product page: more from the collection (vertical rail) -------------------------- */
+/* ---------- Product page: more from the collection (3 per row, scrolls vertically) --------- */
 .related {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(2rem, 5vw, 5rem);
-  padding: clamp(4rem, 9vw, 8rem) var(--pad);
-  align-items: start;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  padding: clamp(4rem, 9vw, 7rem) var(--pad);
 }
 .related__head {
-  position: sticky;
-  top: calc(var(--header-h) + 2rem);
-  display: grid;
-  gap: 1.25rem;
-  justify-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 2rem;
+}
+.related__head .spread__kicker {
+  flex-basis: 100%;
 }
 .related__title {
   font-family: var(--font-logo);
@@ -905,8 +932,9 @@ main:focus {
   font-weight: 430;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  font-size: clamp(2.4rem, 5vw, 5rem);
+  font-size: clamp(2.2rem, 4.5vw, 4.2rem);
   line-height: 0.9;
+  margin-right: auto;
 }
 .related__controls {
   display: flex;
@@ -922,31 +950,26 @@ main:focus {
   margin-left: 0.4rem;
 }
 .related__rail {
-  height: min(82svh, 52rem);
-  width: min(100%, 36rem);
-  justify-self: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  max-height: min(78svh, 46rem);
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   overscroll-behavior: contain;
-  scrollbar-width: none;
-  border-radius: 0.25rem;
-}
-.related__rail::-webkit-scrollbar {
-  display: none;
+  scrollbar-width: thin;
 }
 .related__rail:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 4px;
 }
 .related__item {
-  height: 100%;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 .related__link {
   position: relative;
   display: block;
-  height: 100%;
+  aspect-ratio: 4 / 5;
   color: var(--cream);
 }
 .related__media {
@@ -966,8 +989,8 @@ main:focus {
   right: 0;
   bottom: 0;
   display: grid;
-  gap: 0.35rem;
-  padding: 4rem 1.5rem 1.5rem;
+  gap: 0.3rem;
+  padding: 3rem 1rem 1rem;
   background: linear-gradient(to top, rgba(11, 11, 11, 0.7), rgba(11, 11, 11, 0));
 }
 .related__name {
@@ -975,25 +998,18 @@ main:focus {
   font-variation-settings: 'opsz' 100;
   font-weight: 430;
   text-transform: uppercase;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
   line-height: 0.95;
 }
 .related__price {
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
 }
-@media (max-width: 56em) {
-  .related {
-    grid-template-columns: 1fr;
-  }
-  .related__head {
-    position: static;
-  }
+@media (max-width: 40em) {
   .related__rail {
-    height: min(78svh, 40rem);
-    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1075,7 +1091,7 @@ main:focus {
 
 /* ---------- Products: transparent grid + promotional strips ------------------------------- */
 .shop {
-  padding: calc(var(--header-h) + clamp(1.5rem, 4vw, 3rem)) var(--pad) 9rem;
+  padding: calc(var(--header-h) + clamp(1.5rem, 4vw, 3rem)) var(--pad) 2.5rem;
 }
 .shop__head {
   display: grid;
@@ -1174,11 +1190,12 @@ main:focus {
 
 /* Frosted filter bar + bottom drawer */
 .filterbar {
-  position: fixed;
+  /* Sticky inside the products area: follows the scroll, stops before the footer. */
+  position: sticky;
   z-index: 45;
-  left: 50%;
   bottom: max(1.25rem, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
+  width: fit-content;
+  margin: clamp(3rem, 6vw, 5rem) auto 0;
   display: flex;
   align-items: center;
   gap: 1.25rem;
@@ -1189,7 +1206,7 @@ main:focus {
 @keyframes bar-in {
   from {
     opacity: 0;
-    transform: translate(-50%, 1.5rem);
+    transform: translateY(1.5rem);
   }
 }
 .filterbar__button {
@@ -2558,40 +2575,27 @@ a:hover .grain--still::after {
   }
 }
 
-/* ---------- Product overlay (non-modal, below the header) ------------------------------- */
+/* ---------- Product drawer (modal, over the whole page) ----------------------------------- */
 .site-header {
   z-index: 60;
 }
 html.has-overlay .site-header {
   color: var(--ink);
 }
-.overlay-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 54;
-  background: rgba(247, 245, 242, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  animation: fade-in 0.5s var(--ease) both;
-}
 .overlay {
-  position: fixed;
-  z-index: 55;
-  inset: var(--header-h) 0 0 auto;
   width: min(78rem, 100vw);
   max-width: 100vw;
-  height: calc(100svh - var(--header-h));
-  max-height: none;
-  margin: 0;
+  height: 100svh;
+  max-height: 100svh;
+  margin: 0 0 0 auto;
   padding: 0;
   border: 0;
-  border-radius: 1rem 0 0 0;
   background: var(--cream);
   color: var(--ink);
-  box-shadow: -2rem 0 4rem -2rem rgba(11, 11, 11, 0.25);
   transform: translateX(100%);
   transition:
     transform 0.7s var(--ease-expo),
+    overlay 0.7s allow-discrete,
     display 0.7s allow-discrete;
 }
 .overlay[open] {
@@ -2602,8 +2606,9 @@ html.has-overlay .site-header {
     transform: translateX(100%);
   }
 }
-.overlay:focus {
-  outline: none;
+.overlay::backdrop {
+  background: rgba(11, 11, 11, 0.4);
+  backdrop-filter: blur(6px);
 }
 .overlay__panel {
   height: 100%;
@@ -2634,7 +2639,7 @@ html.has-overlay .site-header {
 }
 .pdp--overlay .pdp__gallery {
   top: 0;
-  height: calc(100svh - var(--header-h));
+  height: 100svh;
   padding-top: 0.75rem;
 }
 .pdp--overlay .pdp__sticky {

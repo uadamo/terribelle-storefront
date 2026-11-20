@@ -27,14 +27,16 @@ On a normal machine, skip the relay and use the real domain and token.
   · `/products/:handle` (full page) · `/cart` · `/legal/:handle` (privacy | orders | accessibility).
 - **Product overlay**: any page with `?product=<handle>` shows the piece in an overlay (`ProductOverlay`, data from the
   product route loader via fetcher). Use `<ProductLink>` for product links — real href, overlay on plain click.
-  Overlays (product, full-page menu) are non-modal panels *below* the header (`usePageOverlay`: main/footer inert, Esc closes).
-  Product pages end with "More from the collection" (`RelatedRail`, vertical scroll-snap).
+  The product drawer is a modal over everything; the full-page menu is a non-modal panel *below* the header
+  (`usePageOverlay`: main/footer inert, Esc closes). Product pages end with "More from the collection"
+  (`RelatedRail`, 3 per row, scrolls vertically).
   `/localization` (POST) sets the country cookie and language.
 - **Data model** (see `scripts/seed/README.md`): product metafields `custom.bespoke`, `size_type`, `composition` (JSON),
   `care_instructions`, `measurement_fields`, `production_time`, `edition`; metaobject `product_feed` (handle `main`).
   HS code / origin / weight live on variant inventory items (internal only).
 - **Campaigns**: metaobject `campaign` (presenter, title, credits, collection, video, poster, cta_label);
-  the home hero shows `product_feed.campaign`. Collection metafield `custom.promo_videos` = silent video strips between
+  the home page opens with the campaign whose `featured` switch is on (newest wins; fallback `product_feed.campaign`)
+  and shows up to 4 pieces of its collection. Collection metafield `custom.promo_videos` = silent video strips between
   product rows; `custom.tagline` under the title. Menu collections = `product_feed.collections` (full-page menu, `CollectionsMenu`). Seed: `npm run seed:campaigns`.
 - **Motion**: `ParallaxImage` (react-scroll-parallax, off for reduced motion); decorative Three.js scenes in
   `app/components/three` (lazy-loaded, paused off-screen, single frame for reduced motion).
