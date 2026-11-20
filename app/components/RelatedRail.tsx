@@ -61,7 +61,7 @@ export function RelatedRail({related}: {related: Related | null}) {
           return (
             <li key={p.id} className="related__item">
               <ProductLink handle={p.handle} className="related__link">
-                <span className="related__media grain">{img && <Image data={img} alt="" sizes="(min-width: 64em) 24vw, 46vw" loading="lazy" />}</span>
+                <span className="related__media">{img && <Image data={img} alt="" sizes="(min-width: 64em) 24vw, 46vw" loading="lazy" />}</span>
                 <span className="related__caption">
                   <span className="related__name">{p.title}</span>
                   <span className="related__price">

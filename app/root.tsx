@@ -94,9 +94,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <Links />
       </head>
       <body>
-        <a className="skip-link" href="#main">
-          {translate(lang, 'a11y.skip')}
-        </a>
         {children}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />

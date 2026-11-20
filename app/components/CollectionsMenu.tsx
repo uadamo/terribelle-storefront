@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {startTransition, useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Link, useLocation} from 'react-router';
 import {Image} from '@shopify/hydrogen';
@@ -35,7 +35,7 @@ export function CollectionsMenu({collections}: {collections: NavCollection[]}) {
 
   // The panel is portalled to <body> so it stacks *below* the header (it's rendered from inside it).
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => startTransition(() => setMounted(true)), []);
 
   const imageOf = (c: NavCollection) => c.image ?? c.products.nodes[0]?.featuredImage ?? null;
 

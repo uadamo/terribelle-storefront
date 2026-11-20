@@ -16,7 +16,7 @@ type PinMotion = {
 const PIN_COLORS = ['#ffffff', '#1f0101', '#1c001b'];
 
 /** Floating dressmaker's pins (decorative). Adapted from the brand's FloatingPins scene. */
-export function FloatingPins({count = 9, scale = 0.62, className = ''}: {count?: number; scale?: number; className?: string}) {
+export function FloatingPins({count = 6, scale = 0.42, speed = 0.45, className = ''}: {count?: number; scale?: number; speed?: number; className?: string}) {
   const mountRef = useThreeStage((T, mount) => {
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(45, 1, 0.1, 100);
@@ -101,9 +101,9 @@ export function FloatingPins({count = 9, scale = 0.62, className = ''}: {count?:
         baseZ: spreadZ,
         phase: Math.random() * Math.PI * 2,
         floatAmplitude: 0.1 + Math.random() * 0.24,
-        floatSpeed: 0.4 + Math.random() * 0.9,
-        spinX: (Math.random() - 0.5) * 0.004,
-        spinY: (Math.random() - 0.5) * 0.008,
+        floatSpeed: (0.4 + Math.random() * 0.9) * speed,
+        spinX: (Math.random() - 0.5) * 0.004 * speed,
+        spinY: (Math.random() - 0.5) * 0.008 * speed,
       });
     }
 

@@ -39,7 +39,10 @@ On a normal machine, skip the relay and use the real domain and token.
   and shows up to 4 pieces of its collection. Collection metafield `custom.promo_videos` = silent video strips between
   product rows; `custom.tagline` under the title. Menu collections = `product_feed.collections` (full-page menu, `CollectionsMenu`). Seed: `npm run seed:campaigns`.
 - **Motion**: `ParallaxImage` (react-scroll-parallax, off for reduced motion); decorative Three.js scenes in
-  `app/components/three` (lazy-loaded, paused off-screen, single frame for reduced motion).
+  `app/components/three` (lazy-loaded, paused off-screen, single frame for reduced motion): pins/buttons in the
+  made-to-measure section, and the brand emblem — procedural belladonna berries + flowers (`belladonnaModels.ts`)
+  floating with scroll-linked parallax over the home magazine (`FloatingBelladonna`, hidden for reduced motion).
+- **No skip link** by design; landmarks (header/nav/main) provide bypass (WCAG 2.4.1).
 - **Media treatment**: `.grain` on photo wrappers (film grain that fades on hover); `<AutoVideo>` for silent videos
   (pauses off-screen, still image for reduced motion, pause button for WCAG 2.2.2). Buttons are borderless, transparent frosted glass (`.button`, `.glass`); no vertical rules; type is Imbue + Questrial only.
 - **Newsletter**: `NewsletterBanner` (home, after 50% scroll, hidden over the footer, dismissal in localStorage)

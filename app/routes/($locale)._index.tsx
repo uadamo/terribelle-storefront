@@ -12,6 +12,7 @@ import {NewsletterBanner} from '~/components/NewsletterBanner';
 import {ParallaxImage} from '~/components/ParallaxImage';
 import {FloatingPins} from '~/components/three/FloatingPins';
 import {FloatingButtons} from '~/components/three/FloatingButtons';
+import {FloatingBelladonna} from '~/components/three/FloatingBelladonna';
 
 export const meta: Route.MetaFunction = ({data}) => [
   {title: data?.campaign ? `${data.campaign.title} — Terribelle Couture` : 'Terribelle Couture — made to measure'},
@@ -153,7 +154,9 @@ function Magazine({
   const [first, second, third, fourth] = stories;
 
   return (
-    <section className="mag" aria-labelledby="mag-title">
+    <section className="mag" aria-labelledby="mag-title" data-belladonna>
+      {/* The brand emblem drifting over the photographs (decorative). */}
+      <FloatingBelladonna />
       <h2 id="mag-title" className="sr-only">
         {collectionTitle ? `${t('home.eyebrow')} — ${collectionTitle}` : t('home.eyebrow')}
       </h2>
@@ -224,9 +227,9 @@ function MadeToMeasure({product}: {product: ProductCardFragment | null}) {
 
   return (
     <section className="atelier-feature" aria-labelledby="bespoke-title">
-      {/* Decorative: dressmaker's pins drift behind the page, a few buttons in front. */}
-      <FloatingPins count={9} className="atelier-feature__pins" />
-      <FloatingButtons count={6} className="atelier-feature__buttons" />
+      {/* Decorative: a few dressmaker's pins and buttons drift slowly over the section. */}
+      <FloatingPins className="atelier-feature__pins" />
+      <FloatingButtons className="atelier-feature__buttons" />
 
       <Reveal className="atelier-feature__head">
         <p className="spread__kicker">{t('mtmSection.eyebrow')}</p>

@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {startTransition, useEffect, useState} from 'react';
 import {ParallaxProvider} from 'react-scroll-parallax';
 import type {CartApiQueryFragment, ShopQuery} from 'storefrontapi.generated';
 import {Header} from './Header';
@@ -23,7 +23,9 @@ export function PageLayout({
 }) {
   // Parallax off for visitors who ask their device for reduced motion.
   const [reduced, setReduced] = useState(false);
-  useEffect(() => setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches), []);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) startTransition(() => setReduced(true));
+  }, []);
 
   return (
     <ParallaxProvider isDisabled={reduced}>

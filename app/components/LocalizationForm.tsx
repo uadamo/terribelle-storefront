@@ -1,4 +1,4 @@
-import {useEffect, useId, useRef, useState} from 'react';
+import {startTransition, useEffect, useId, useRef, useState} from 'react';
 import {Form, useLocation, useSubmit} from 'react-router';
 import type {ShopQuery} from 'storefrontapi.generated';
 import {LANGUAGES, type Lang, useLocale, useT} from '~/lib/i18n';
@@ -31,7 +31,7 @@ export function LocalizationForm({
   // With JavaScript, a choice applies immediately (the visitor is told so
   // beforehand — WCAG 3.2.2); without it, the Update button submits the form.
   const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
+  useEffect(() => startTransition(() => setHydrated(true)), []);
   const apply = () => formRef.current && void submit(formRef.current, {preventScrollReset: true});
 
   return (

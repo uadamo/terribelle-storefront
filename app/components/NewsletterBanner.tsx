@@ -1,4 +1,4 @@
-import {useEffect, useId, useRef, useState} from 'react';
+import {startTransition, useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {useLocalePath, useT} from '~/lib/i18n';
 import {useUI} from './UIProvider';
@@ -23,11 +23,13 @@ export function NewsletterBanner() {
   const pastHalf = useRef(false);
 
   useEffect(() => {
+    let value = false;
     try {
-      setDismissed(localStorage.getItem(DISMISS_KEY) === '1');
+      value = localStorage.getItem(DISMISS_KEY) === '1';
     } catch {
-      setDismissed(false);
+      value = false;
     }
+    startTransition(() => setDismissed(value));
   }, []);
 
   useEffect(() => {
