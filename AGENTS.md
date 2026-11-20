@@ -42,6 +42,9 @@ On a normal machine, skip the relay and use the real domain and token.
   `app/components/three` (lazy-loaded, paused off-screen, single frame for reduced motion).
 - **Media treatment**: `.grain` on photo wrappers (film grain that fades on hover); `<AutoVideo>` for silent videos
   (pauses off-screen, still image for reduced motion, pause button for WCAG 2.2.2). Buttons are borderless, transparent frosted glass (`.button`, `.glass`); no vertical rules; type is Imbue + Questrial only.
+- **Newsletter**: `NewsletterBanner` (home, after 50% scroll, hidden over the footer, dismissal in localStorage)
+  posts to `/newsletter`, which creates a Shopify customer with email-marketing consent (same response for
+  existing emails). Enable double opt-in in Shopify for EU subscribers.
 - **Made to measure**: measurements are cart line attributes (`"Bust (cm)": "88"`), visible in checkout and the order.
 - **i18n**: `app/lib/i18n.ts` + `app/i18n/{en,fr}.ts`. Use `useT()` for strings and `useLocalePath()` for links.
 - **Site settings** (email, TikTok, carriers, measurement ranges): `app/lib/site.ts`. Legal drafts: `app/content/legal.tsx`.

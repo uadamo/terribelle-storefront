@@ -2658,6 +2658,115 @@ html.has-overlay .site-header {
   }
 }
 
+/* ---------- Newsletter card (home, bottom right) --------------------------------------------- */
+.newsletter {
+  position: fixed;
+  z-index: 50;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  width: min(23rem, calc(100vw - 2rem));
+  padding: 1.4rem 1.4rem 1.2rem;
+  border-radius: 1.1rem;
+  background: rgba(247, 245, 242, 0.55);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 1.5rem 3rem -1.5rem rgba(11, 11, 11, 0.35);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 0.6s var(--ease),
+    transform 0.8s var(--ease-expo),
+    display 0.8s allow-discrete;
+}
+.newsletter.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  .newsletter.is-visible {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+.newsletter[hidden] {
+  display: none;
+}
+.newsletter__close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  transition: background-color var(--t-fast) var(--ease);
+}
+.newsletter__close:hover {
+  background: rgba(11, 11, 11, 0.06);
+}
+.newsletter__title {
+  font-family: var(--font-logo);
+  font-variation-settings: 'opsz' 100;
+  font-weight: 430;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 1.7rem;
+  line-height: 0.95;
+  padding-right: 2.5rem;
+}
+.newsletter__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.7rem;
+}
+.newsletter__text,
+.newsletter__done {
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+.newsletter__row {
+  display: flex;
+  gap: 0.5rem;
+}
+.newsletter__row input[type='email'] {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.9rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(11, 11, 11, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+}
+.newsletter__row input[type='email']:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.newsletter__row .button {
+  flex: none;
+  min-height: 2.9rem;
+  padding: 0 1.1rem;
+}
+.newsletter__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+}
+.newsletter__fine {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.newsletter__fine .text-button {
+  font-size: inherit;
+}
+
 /* ---------- Page transitions (View Transitions API) ------------------------------------------------- */
 @view-transition {
   navigation: auto;

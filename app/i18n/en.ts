@@ -1,6 +1,15 @@
 export const en = {
   // Global
   'brand.name': 'Terribelle',
+  'newsletter.title': 'Subscribe to our newsletter',
+  'newsletter.text': 'New collections, made-to-measure openings and atelier notes — a few letters a season.',
+  'newsletter.placeholder': 'Email address',
+  'newsletter.submit': 'Subscribe',
+  'newsletter.thanks': 'Thank you — please check your inbox to confirm.',
+  'newsletter.invalid': 'Please enter a valid email address.',
+  'newsletter.failed': 'Something went wrong. Please try again.',
+  'newsletter.consent': 'You can unsubscribe at any time.',
+  'newsletter.dismiss': 'Close newsletter sign-up',
   'related.kicker': 'More from the collection',
   'related.view': 'View the collection',
   'related.hint': 'Scroll',

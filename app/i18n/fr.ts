@@ -2,6 +2,15 @@ import type {Dictionary} from './en';
 
 export const fr: Dictionary = {
   'brand.name': 'Terribelle',
+  'newsletter.title': 'Abonnez-vous à notre lettre',
+  'newsletter.text': 'Nouvelles collections, ouvertures sur mesure et notes d’atelier — quelques lettres par saison.',
+  'newsletter.placeholder': 'Adresse e-mail',
+  'newsletter.submit': 'S’abonner',
+  'newsletter.thanks': 'Merci — vérifiez votre boîte de réception pour confirmer.',
+  'newsletter.invalid': 'Veuillez saisir une adresse e-mail valide.',
+  'newsletter.failed': 'Une erreur est survenue. Veuillez réessayer.',
+  'newsletter.consent': 'Désinscription possible à tout moment.',
+  'newsletter.dismiss': 'Fermer l’inscription à la lettre',
   'related.kicker': 'Dans la même collection',
   'related.view': 'Voir la collection',
   'related.hint': 'Faire défiler',

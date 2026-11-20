@@ -8,6 +8,7 @@ import {Reveal} from '~/components/Reveal';
 import {AutoVideo} from '~/components/AutoVideo';
 import {ProductLink} from '~/components/ProductLink';
 import {Logo} from '~/components/Logo';
+import {NewsletterBanner} from '~/components/NewsletterBanner';
 import {ParallaxImage} from '~/components/ParallaxImage';
 import {FloatingPins} from '~/components/three/FloatingPins';
 import {FloatingButtons} from '~/components/three/FloatingButtons';
@@ -77,6 +78,7 @@ export default function Home() {
       <Poster campaign={campaign} fallbackImage={fallbackImage} />
       <Magazine stories={stories} collectionTitle={campaign?.collection?.title ?? null} collectionHandle={campaign?.collection?.handle ?? null} />
       <MadeToMeasure product={bespoke} />
+      <NewsletterBanner />
     </div>
   );
 }
