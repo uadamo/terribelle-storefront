@@ -49,7 +49,7 @@ export async function loader({context}: Route.LoaderArgs) {
   const {storefront, env, cart} = context;
   const locale = storefront.i18n as ReturnType<typeof useLocale>;
 
-  const {shop, localization} = await storefront.query(SHOP_QUERY, {
+  const {shop, localization, nav} = await storefront.query(SHOP_QUERY, {
     cache: storefront.CacheLong(),
   });
 
@@ -58,6 +58,7 @@ export async function loader({context}: Route.LoaderArgs) {
     cart: cart.get(),
     shopInfo: shop,
     localization,
+    nav,
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     shop: getShopAnalytics({
       storefront,

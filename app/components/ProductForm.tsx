@@ -1,5 +1,5 @@
 import {useEffect, useId, useRef, useState} from 'react';
-import {Link, useFetcher, useNavigate} from 'react-router';
+import {Link, useFetcher, useLocation, useNavigate} from 'react-router';
 import {CartForm, type MappedProductOptions} from '@shopify/hydrogen';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {translate, useLocalePath, useT} from '~/lib/i18n';
@@ -40,6 +40,15 @@ export function ProductForm({
   const t = useT();
   const to = useLocalePath();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  /** Apply a variant's options while keeping other URL params (collection, overlay…). */
+  function selectVariant(variantUriQuery: string) {
+    const next = new URLSearchParams(location.search);
+    for (const o of productOptions) next.delete(o.name);
+    new URLSearchParams(variantUriQuery).forEach((v, k) => next.set(k, v));
+    void navigate({search: `?${next}`}, {replace: true, preventScrollReset: true, state: location.state});
+  }
   const {announce, openLegal} = useUI();
   const id = useId();
   const fetcher = useFetcher({key: `add-to-cart-${productTitle}`});
@@ -149,12 +158,7 @@ export function ProductForm({
                       value={value.name}
                       checked={value.selected}
                       disabled={!value.exists}
-                      onChange={() =>
-                        void navigate(`?${value.variantUriQuery}`, {
-                          replace: true,
-                          preventScrollReset: true,
-                        })
-                      }
+                      onChange={() => selectVariant(value.variantUriQuery)}
                     />
                     {isColor && swatch && (
                       <span className="choice__swatch" style={{background: swatch}} aria-hidden="true" />

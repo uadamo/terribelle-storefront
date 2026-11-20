@@ -5,6 +5,7 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useLocalePath, useT} from '~/lib/i18n';
 import {useUI} from './UIProvider';
 import {Logo} from './Logo';
+import {CollectionsMenu, type NavCollection} from './CollectionsMenu';
 
 /**
  * Fixed, background-less navigation. Text is ink by default and fades to cream
@@ -48,7 +49,13 @@ function useOverDarkSection() {
   return dark;
 }
 
-export function Header({cart}: {cart: Promise<CartApiQueryFragment | null>}) {
+export function Header({
+  cart,
+  collections,
+}: {
+  cart: Promise<CartApiQueryFragment | null>;
+  collections: NavCollection[];
+}) {
   const t = useT();
   const to = useLocalePath();
   const {openContact} = useUI();
@@ -62,9 +69,7 @@ export function Header({cart}: {cart: Promise<CartApiQueryFragment | null>}) {
       <nav aria-label={t('a11y.mainNav')}>
         <ul className="site-header__nav">
           <li>
-            <NavLink to={to('/products')} className="nav-link" prefetch="intent" viewTransition>
-              {t('nav.products')}
-            </NavLink>
+            <CollectionsMenu collections={collections} />
           </li>
           <li>
             <button

@@ -66,7 +66,7 @@ function CartLineItem({line}: {line: CartLine}) {
 
   return (
     <li className={`line${isOptimistic ? ' is-pending' : ''}`}>
-      <Link to={to(`/products/${product.handle}`)} className="line__media zoom" tabIndex={-1} aria-hidden="true">
+      <Link to={to(`/products/${product.handle}`)} className="line__media zoom grain" tabIndex={-1} aria-hidden="true">
         {image && <Image data={image} alt="" aspectRatio="4/5" width={180} loading="lazy" />}
       </Link>
       <div className="line__body">

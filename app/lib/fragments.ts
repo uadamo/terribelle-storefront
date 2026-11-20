@@ -183,6 +183,19 @@ export const SHOP_QUERY = `#graphql
         supportedDigitalWallets
       }
     }
+    nav: metaobject(handle: {type: "product_feed", handle: "main"}) {
+      collections: field(key: "collections") {
+        references(first: 20) {
+          nodes {
+            ... on Collection {
+              id
+              handle
+              title
+            }
+          }
+        }
+      }
+    }
     localization {
       country {
         isoCode
@@ -210,7 +223,14 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
     handle
     title
     productType
+    description
     availableForSale
+    options {
+      name
+      optionValues {
+        name
+      }
+    }
     bespoke: metafield(namespace: "custom", key: "bespoke") {
       value
     }
@@ -235,6 +255,26 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
         width
         height
       }
+    }
+  }
+` as const;
+
+/** Shopify-hosted video (campaign hero, promotional strips). */
+export const VIDEO_FRAGMENT = `#graphql
+  fragment VideoMedia on Video {
+    id
+    alt
+    sources {
+      url
+      mimeType
+      width
+      height
+    }
+    previewImage {
+      url
+      width
+      height
+      altText
     }
   }
 ` as const;

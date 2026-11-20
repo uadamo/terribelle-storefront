@@ -14,7 +14,10 @@ export default async function handleRequest(
   reactRouterContext: EntryContext,
   context: HydrogenRouterContextProvider,
 ) {
+  // Campaign videos are served from the shop's own domain (…/cdn/shop/videos).
+  const shopDomain = context.env.PUBLIC_CHECKOUT_DOMAIN;
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    mediaSrc: ["'self'", 'https://cdn.shopify.com', `https://${shopDomain}`, 'https://*.myshopify.com', 'blob:'],
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,

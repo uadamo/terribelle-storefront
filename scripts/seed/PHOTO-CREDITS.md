@@ -20,3 +20,14 @@ They show other makers' garments and are **development stand-ins only — replac
 ## belle-epoque-underskirt
 - [Model seated in voluminous white tulle in a dark forest](https://www.pexels.com/photo/14682635/)
 - [Dancer in a full white tulle skirt, backstage](https://www.pexels.com/photo/13545374/)
+
+## carillon-skirt
+- [Silver sequin skirt with red heels](https://www.pexels.com/photo/5713294/)
+- [Gold sequin look against a tinsel curtain](https://www.pexels.com/photo/6224735/)
+
+# Video credits
+
+Campaign and promotional videos are from [Mixkit](https://mixkit.co) under the
+[Mixkit Stock Video Free License](https://mixkit.co/license/#videoFree) (commercial use, no attribution required).
+Development stand-ins only. Mixkit IDs: 6559 (hero), 5217, 1038, 32750 (Terribelle of the Ball); 1356, 33896, 1355
+(You Can Ring My Terribell). See `campaigns-data.mjs`.

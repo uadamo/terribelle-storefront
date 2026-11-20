@@ -1,63 +1,44 @@
-import {Link} from 'react-router';
 import {Image, Money} from '@shopify/hydrogen';
 import type {ProductCardFragment} from 'storefrontapi.generated';
-import {useLocalePath, useT} from '~/lib/i18n';
+import {useT} from '~/lib/i18n';
+import {ProductLink} from './ProductLink';
 
 export function ProductCard({
   product,
   index,
   headingLevel = 3,
   loading = 'lazy',
-  sizes = '(min-width: 64em) 33vw, 50vw',
+  sizes = '(min-width: 64em) 33vw, (min-width: 30em) 50vw, 100vw',
   transition = true,
   variant = 'default',
 }: {
-  variant?: 'default' | 'grid';
   product: ProductCardFragment;
   index?: number;
   headingLevel?: 2 | 3;
   loading?: 'eager' | 'lazy';
   sizes?: string;
   transition?: boolean;
+  variant?: 'default' | 'grid';
 }) {
   const t = useT();
-  const to = useLocalePath();
   const [first, second] = product.images.nodes;
   const H = `h${headingLevel}` as 'h2' | 'h3';
   const bespoke = product.bespoke?.value === 'true';
   const {minVariantPrice: min, maxVariantPrice: max} = product.priceRange;
   const varies = min.amount !== max.amount;
+  const caption = product.description.split(/(?<=[.!?])\s/)[0];
 
   return (
-    <Link
-      to={to(`/products/${product.handle}`)}
-      className={`card card--${variant}`}
-      prefetch="intent"
-      viewTransition
-    >
+    <ProductLink handle={product.handle} className={`card card--${variant}`}>
       <div
-        className="card__media"
+        className="card__media grain"
         style={transition ? {viewTransitionName: `media-${product.handle}`} : undefined}
       >
         {first && (
-          <Image
-            data={first}
-            alt=""
-            aspectRatio="4/5"
-            sizes={sizes}
-            loading={loading}
-            className="card__img"
-          />
+          <Image data={first} alt="" aspectRatio="4/5" sizes={sizes} loading={loading} className="card__img" />
         )}
         {second && (
-          <Image
-            data={second}
-            alt=""
-            aspectRatio="4/5"
-            sizes={sizes}
-            loading="lazy"
-            className="card__img card__img--alt"
-          />
+          <Image data={second} alt="" aspectRatio="4/5" sizes={sizes} loading="lazy" className="card__img card__img--alt" />
         )}
         {!product.availableForSale && <span className="tag tag--ink">{t('product.soldOut')}</span>}
         {bespoke && product.availableForSale && <span className="tag">{t('product.bespoke')}</span>}
@@ -69,16 +50,17 @@ export function ProductCard({
           </span>
         )}
         <H className="card__title">{product.title}</H>
+        {variant === 'grid' && caption && <p className="card__text">{caption}</p>}
         <p className="card__meta">
           {varies ? (
-            t('product.from', {price: '§'})
-              .split('§')
-              .map((part, i) => (i === 0 ? <span key={i}>{part}</span> : <span key={i}><Money data={min} as="span" withoutTrailingZeros />{part}</span>))
+            <>
+              {t('product.from', {price: ''}).trim()} <Money data={min} as="span" withoutTrailingZeros />
+            </>
           ) : (
             <Money data={min} as="span" withoutTrailingZeros />
           )}
         </p>
       </div>
-    </Link>
+    </ProductLink>
   );
 }
